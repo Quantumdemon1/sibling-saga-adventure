@@ -22,7 +22,10 @@ export const usePreloadModels = () => {
     const loadModels = async () => {
       try {
         const promises = Object.values(MODEL_PATHS).map((path) => 
-          useGLTF.preload(path).catch(() => console.log(`Model not found: ${path}`))
+          useGLTF.preload(path).catch((error) => {
+            console.log(`Model not found: ${path}`);
+            return null; // Return null instead of undefined
+          })
         );
         await Promise.all(promises);
         setIsLoaded(true);
