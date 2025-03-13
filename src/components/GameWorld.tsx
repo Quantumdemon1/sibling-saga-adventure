@@ -4,11 +4,13 @@ import { PointerLockControls, Sky, Stats } from '@react-three/drei';
 import useGameStateStore from '@/stores/gameStateStore';
 import Player from './Player';
 import NPC from './NPC';
+import NPCsContainer from './NPCsContainer';
 import BigBrotherHouse from './BigBrotherHouse';
 import NominationBox from './NominationBox';
 import SceneLights from './SceneLights';
 import InteractiveObject from './InteractiveObject';
 import StatusIndicators from './StatusIndicators';
+import PhaseVisualizer from './phase-visualizations/PhaseVisualizer';
 import { Box } from '@react-three/drei';
 import { usePreloadModels } from '@/utils/modelLoader';
 
@@ -143,13 +145,19 @@ const GameWorld: React.FC = () => {
           {/* Ground */}
           <Ground size={[100, 100]} />
           
-          {/* Big Brother House - now uses our detailed version */}
+          {/* Big Brother House */}
           <BigBrotherHouse />
           
           {/* Status indicators in 3D space */}
           <StatusIndicators />
           
-          {/* Phase-specific elements */}
+          {/* Phase-specific visualizations */}
+          <PhaseVisualizer />
+          
+          {/* NPCs Container - all NPCs will be managed here */}
+          <NPCsContainer />
+          
+          {/* Phase-specific interactive elements */}
           {currentPhase === 'nominationCeremony' && (
             <InteractiveObject
               position={[4, 1, -8]}
