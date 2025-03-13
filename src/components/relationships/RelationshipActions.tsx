@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, ThumbsDown, MessageSquare, Smile, Frown, Gift, UserPlus } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { InteractionAction } from '@/hooks/useRelationshipInteractions';
+import { InteractionAction } from '@/types/relationshipTypes';
 
 // These could be moved to a constants file if needed
 export const RELATIONSHIP_ACTIONS: InteractionAction[] = [

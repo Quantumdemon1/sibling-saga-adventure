@@ -2,21 +2,9 @@
 import { useState } from 'react';
 import { Player } from '@/types/PlayerProfileTypes';
 import { Relationship } from '@/types/gameTypes';
+import { InteractionAction, InteractionHistoryEvent } from '@/types/relationshipTypes';
 import { getRelationshipBetweenPlayers, getRelationshipScore } from '@/utils/relationshipUtils';
-
-export type InteractionAction = {
-  id: string;
-  name: string;
-  icon: JSX.Element;
-  points: number;
-  description: string;
-};
-
-export type InteractionHistoryEvent = {
-  date: string;
-  action: string;
-  points: number;
-};
+import { INITIAL_INTERACTION_HISTORY, getRelationshipDescription } from '@/constants/relationshipConstants';
 
 export const useRelationshipInteractions = (
   selectedPlayer: Player | null,
@@ -25,58 +13,53 @@ export const useRelationshipInteractions = (
 ) => {
   const [selectedAction, setSelectedAction] = useState<string>("");
   const [customPoints, setCustomPoints] = useState<number[]>([0]);
-  const [interactionHistory, setInteractionHistory] = useState<InteractionHistoryEvent[]>([
-    { date: "Day 5", action: "Had a deep conversation", points: 15 },
-    { date: "Day 3", action: "Shared game strategy", points: 10 },
-    { date: "Day 2", action: "Disagreement about chores", points: -5 },
-  ]);
+  const [interactionHistory, setInteractionHistory] = useState<InteractionHistoryEvent[]>(INITIAL_INTERACTION_HISTORY);
 
+  // Get current relationship data
   const relationship = selectedPlayer && humanPlayer
     ? getRelationshipBetweenPlayers(humanPlayer, selectedPlayer)
     : null;
     
   const relationshipScore = relationship ? getRelationshipScore(relationship) : 0;
 
+  // Handle predefined interaction action
   const handleActionSelect = (actionId: string, actions: InteractionAction[]) => {
     setSelectedAction(actionId);
     const action = actions.find(a => a.id === actionId);
     
     if (action && selectedPlayer) {
+      // Apply relationship change
       onRelationshipChange(selectedPlayer.id, action.points);
       
-      // Add to interaction history
-      const newHistoryItem: InteractionHistoryEvent = {
-        date: `Day ${Math.floor(Math.random() * 10) + 1}`, // Just for demo
-        action: action.name,
-        points: action.points
-      };
-      
-      setInteractionHistory(prev => [newHistoryItem, ...prev]);
+      // Record interaction in history
+      addToInteractionHistory(action.name, action.points);
     }
   };
 
+  // Handle custom interaction with slider value
   const handleCustomInteraction = () => {
     if (selectedPlayer && customPoints[0] !== 0) {
+      // Apply relationship change
       onRelationshipChange(selectedPlayer.id, customPoints[0]);
       
-      // Add to interaction history
-      const newHistoryItem: InteractionHistoryEvent = {
-        date: `Day ${Math.floor(Math.random() * 10) + 1}`, // Just for demo
-        action: `Custom interaction (${customPoints[0] > 0 ? 'positive' : 'negative'})`,
-        points: customPoints[0]
-      };
+      // Record interaction in history
+      const interactionType = customPoints[0] > 0 ? 'positive' : 'negative';
+      addToInteractionHistory(`Custom interaction (${interactionType})`, customPoints[0]);
       
-      setInteractionHistory(prev => [newHistoryItem, ...prev]);
+      // Reset slider
       setCustomPoints([0]);
     }
   };
 
-  const getRelationshipDescription = (score: number): string => {
-    if (score > 80) return 'Strong alliance - they trust you completely!';
-    if (score > 60) return 'Good friends - they see you as an ally.';
-    if (score > 40) return 'Friendly - they generally like you.';
-    if (score > 20) return 'Neutral - they have no strong feelings.';
-    return 'Hostile - they may target you!';
+  // Helper function to add new interaction to history
+  const addToInteractionHistory = (actionName: string, points: number) => {
+    const newHistoryItem: InteractionHistoryEvent = {
+      date: `Day ${Math.floor(Math.random() * 10) + 1}`, // Simplified for demo
+      action: actionName,
+      points: points
+    };
+    
+    setInteractionHistory(prev => [newHistoryItem, ...prev]);
   };
 
   return {

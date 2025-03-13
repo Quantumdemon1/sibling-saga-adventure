@@ -2,17 +2,16 @@
 import React from 'react';
 import { Relationship } from '@/types/gameTypes';
 import RelationshipIndicator from './RelationshipIndicator';
+import { getRelationshipDescription } from '@/constants/relationshipConstants';
 
 interface RelationshipStatusProps {
   relationship: Relationship;
   relationshipScore: number;
-  getRelationshipDescription: (score: number) => string;
 }
 
 const RelationshipStatus: React.FC<RelationshipStatusProps> = ({
   relationship,
   relationshipScore,
-  getRelationshipDescription
 }) => {
   return (
     <div className="mb-6">

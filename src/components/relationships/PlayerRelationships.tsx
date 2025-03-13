@@ -4,7 +4,7 @@ import { Player } from '@/types/PlayerProfileTypes';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Heart } from 'lucide-react';
 import RelationshipIndicator from './RelationshipIndicator';
-import { useRelationshipInteractions, InteractionAction } from '@/hooks/useRelationshipInteractions';
+import { useRelationshipInteractions } from '@/hooks/useRelationshipInteractions';
 import RelationshipStatus from './RelationshipStatus';
 import RelationshipHistory from './RelationshipHistory';
 import RelationshipActions, { RELATIONSHIP_ACTIONS } from './RelationshipActions';
@@ -31,8 +31,7 @@ const PlayerRelationships: React.FC<PlayerRelationshipsProps> = ({
     relationshipScore,
     handleActionSelect,
     handleCustomInteraction,
-    setCustomPoints,
-    getRelationshipDescription
+    setCustomPoints
   } = useRelationshipInteractions(selectedPlayer, humanPlayer, onRelationshipChange);
 
   if (!selectedPlayer) {
@@ -66,7 +65,6 @@ const PlayerRelationships: React.FC<PlayerRelationshipsProps> = ({
             <RelationshipStatus 
               relationship={relationship}
               relationshipScore={relationshipScore}
-              getRelationshipDescription={getRelationshipDescription}
             />
             
             <RelationshipHistory events={interactionHistory} />
