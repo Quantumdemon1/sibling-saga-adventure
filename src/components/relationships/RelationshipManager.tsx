@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import useGameStateStore from '@/stores/gameStateStore';
 import { Player } from '@/types/PlayerProfileTypes';
+import { Relationship } from '@/types/gameTypes';
 import { 
   getRelationshipBetweenPlayers, 
   getRelationshipScore,
