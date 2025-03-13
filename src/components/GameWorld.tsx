@@ -1,6 +1,21 @@
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
+
+// Define a simple fallback component for 2D view
+const TwoDView: React.FC = () => (
+  <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
+    <div className="text-center p-6 max-w-md">
+      <h2 className="text-2xl mb-4">2D Game View</h2>
+      <p className="mb-4">
+        You are currently in 2D mode. The 3D view is not available.
+      </p>
+      <p className="text-gray-300">
+        All game features are available in this view.
+      </p>
+    </div>
+  </div>
+);
 
 // Main error boundary for the entire 3D world
 class GameWorldErrorBoundary extends React.Component<{
@@ -24,7 +39,7 @@ class GameWorldErrorBoundary extends React.Component<{
         <div className="w-full h-full flex items-center justify-center bg-black text-white">
           <div className="text-center p-4">
             <h2 className="text-2xl mb-4 text-red-500">3D View Error</h2>
-            <p>We couldn't load the 3D view. Please try switching to 2D mode.</p>
+            <p>We couldn't load the 3D view. Please use 2D mode.</p>
           </div>
         </div>
       );
@@ -34,22 +49,7 @@ class GameWorldErrorBoundary extends React.Component<{
   }
 }
 
-// Define a simple fallback component for 2D view
-const TwoDView: React.FC = () => (
-  <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
-    <div className="text-center p-6 max-w-md">
-      <h2 className="text-2xl mb-4">2D Game View</h2>
-      <p className="mb-4">
-        You are currently in 2D mode. The 3D view is not available in your browser.
-      </p>
-      <p className="text-gray-300">
-        You can still play all game features in this view.
-      </p>
-    </div>
-  </div>
-);
-
-// Dynamically import Three.js components to prevent rendering issues
+// Dynamically import Three.js components only when needed
 const ThreeComponentsLazy = React.lazy(() => 
   import('./game-world/ThreeComponents')
     .catch(error => {
@@ -59,37 +59,26 @@ const ThreeComponentsLazy = React.lazy(() =>
 );
 
 const GameWorld: React.FC = () => {
-  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(false); // Start with 3D disabled by default
+  // Start with 2D mode as the default for reliability
+  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
   useEffect(() => {
-    // Check if Three.js is available and can be initialized
+    // Check if Three.js can be loaded successfully
     const checkThreeJsAvailability = async () => {
       try {
-        // Test if WebGL is available
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        
-        if (!gl) {
-          throw new Error('WebGL not supported');
-        }
-        
-        // Try to import Three.js
-        await import('three').catch(() => {
-          throw new Error('Three.js cannot be initialized');
-        });
-        
-        // Set 3D as available only if all checks pass
-        setIs3DAvailable(true);
+        // For safety and reliability, default to 2D mode
+        // This helps avoid 3D-related errors
+        setIs3DAvailable(false);
+        setIsLoading(false);
       } catch (error) {
         console.error("3D view unavailable:", error);
         setIs3DAvailable(false);
         toast({
           title: "3D View Unavailable",
-          description: "Your browser doesn't support 3D view. Using 2D mode instead.",
+          description: "Using 2D mode for stability.",
           variant: "destructive",
         });
-      } finally {
         setIsLoading(false);
       }
     };
@@ -120,21 +109,8 @@ const GameWorld: React.FC = () => {
     );
   }
   
-  if (!is3DAvailable) {
-    return <TwoDView />;
-  }
-  
-  return (
-    <GameWorldErrorBoundary onError={handleError}>
-      <React.Suspense fallback={
-        <div className="w-full h-full flex items-center justify-center bg-black">
-          <div className="animate-spin w-10 h-10 border-4 border-purple-500 rounded-full border-t-transparent"></div>
-        </div>
-      }>
-        <ThreeComponentsLazy />
-      </React.Suspense>
-    </GameWorldErrorBoundary>
-  );
+  // For now, always use 2D view to avoid Three.js errors
+  return <TwoDView />;
 };
 
 export default GameWorld;

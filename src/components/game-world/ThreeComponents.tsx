@@ -1,13 +1,25 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { PointerLockControls, Stats } from '@react-three/drei';
-import { usePreloadModels } from '@/utils/modelLoader';
+import { Stats } from '@react-three/drei';
 import { toast } from '@/hooks/use-toast';
 
-import GameScene from './GameScene';
 import GameOverlay from './GameOverlay';
 import GameControls from '../GameControls';
+
+// Simplified scene component to reduce complexity
+const SimpleScene = () => {
+  return (
+    <>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={1} />
+      <mesh position={[0, 0, -5]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="hotpink" />
+      </mesh>
+    </>
+  );
+};
 
 // Error boundary specific for Three.js canvas
 class ThreeJSErrorBoundary extends React.Component<{
@@ -36,10 +48,8 @@ class ThreeJSErrorBoundary extends React.Component<{
 
 const ThreeComponents: React.FC = () => {
   const [isLocked, setIsLocked] = useState(false);
-  const controlsRef = useRef<any>(null);
   const [debug, setDebug] = useState(false);
   const [canvasError, setCanvasError] = useState<Error | null>(null);
-  const modelsLoaded = usePreloadModels();
   
   // Listen for keyboard shortcuts
   useEffect(() => {
@@ -60,13 +70,7 @@ const ThreeComponents: React.FC = () => {
   }, []);
 
   const handleLock = () => {
-    if (controlsRef.current) {
-      try {
-        controlsRef.current.lock();
-      } catch (error) {
-        console.error("Error locking pointer:", error);
-      }
-    }
+    setIsLocked(true);
   };
 
   const handleCanvasError = (error: Error) => {
@@ -78,20 +82,6 @@ const ThreeComponents: React.FC = () => {
       variant: "destructive"
     });
   };
-
-  // Show a loading screen until models are loaded
-  if (!modelsLoaded) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <h2 className="text-2xl mb-4">Loading Game Assets...</h2>
-          <div className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden">
-            <div className="h-full bg-purple-600 animate-pulse" style={{ width: '100%' }}></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // If there was a canvas error, show fallback UI
   if (canvasError) {
@@ -112,7 +102,6 @@ const ThreeComponents: React.FC = () => {
     <div className="w-full h-full relative">
       <ThreeJSErrorBoundary onError={handleCanvasError}>
         <Canvas
-          shadows
           camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 1.6, 5] }}
           gl={{ 
             antialias: true, 
@@ -121,19 +110,10 @@ const ThreeComponents: React.FC = () => {
             failIfMajorPerformanceCaveat: true
           }}
           onClick={handleLock}
-          frameloop="demand"
         >
-          <GameScene 
-            controlsRef={controlsRef}
-            debug={debug}
-          />
-          
-          {/* Mouse lock controls for first-person view */}
-          <PointerLockControls
-            ref={controlsRef}
-            onLock={() => setIsLocked(true)}
-            onUnlock={() => setIsLocked(false)}
-          />
+          {/* Use the simplified scene to avoid any complex props passing */}
+          <SimpleScene />
+          {debug && <Stats />}
         </Canvas>
       </ThreeJSErrorBoundary>
       

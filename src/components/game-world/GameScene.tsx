@@ -1,111 +1,32 @@
 
-import React, { Suspense, useState } from 'react';
-import { Sky, Stats } from '@react-three/drei';
-import useGameStateStore from '@/stores/gameStateStore';
+import React from 'react';
+import { Sky } from '@react-three/drei';
 
-import LoadingScreen from './LoadingScreen';
-import Ground from './Ground';
-import GamePhaseElements from './GamePhaseElements';
-import SceneLights from '../SceneLights';
-import BigBrotherHouse from '../BigBrotherHouse';
-import StatusIndicators from '../StatusIndicators';
-import PhaseVisualizer from '../phase-visualizations/PhaseVisualizer';
-
-interface GameSceneProps {
-  controlsRef: React.RefObject<any>;
-  debug: boolean;
-}
-
-// Simple error boundary component for individual scene elements
-class ElementErrorBoundary extends React.Component<{
-  children: React.ReactNode;
-  name: string;
-  onError: (name: string, error: Error) => void;
-}> {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error) {
-    console.error(`Error in ${this.props.name}:`, error);
-    this.props.onError(this.props.name, error);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return null; // Return nothing when there's an error
-    }
-
-    return this.props.children;
-  }
-}
-
-const GameScene: React.FC<GameSceneProps> = ({ controlsRef, debug }) => {
-  const { currentPhase, setOverlay } = useGameStateStore();
-  const [sceneError, setSceneError] = useState<string | null>(null);
-  
-  // Error handler for scene components
-  const handleComponentError = (componentName: string, error: Error) => {
-    console.error(`Error in ${componentName}:`, error);
-    setSceneError(`Failed to load ${componentName}: ${error.message}`);
-  };
-  
-  // Simple fallback scene
-  const renderFallbackScene = () => (
-    <>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} />
-      <mesh position={[0, 0, -5]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="hotpink" />
-      </mesh>
-    </>
-  );
-  
-  // If there's an error in the scene, display a simple fallback
-  if (sceneError) {
-    return renderFallbackScene();
-  }
-  
+// Super simplified game scene to avoid property issues
+const GameScene: React.FC = () => {
   return (
     <>
-      {debug && <Stats />}
-      
-      <fog attach="fog" args={['#87CEEB', 10, 40]} />
       <Sky sunPosition={[100, 10, 100]} />
-      <SceneLights />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={1} />
       
-      <Suspense fallback={<LoadingScreen />}>
-        {/* Ground */}
-        <ElementErrorBoundary name="Ground" onError={handleComponentError}>
-          <Ground size={[100, 100]} />
-        </ElementErrorBoundary>
-        
-        {/* Big Brother House */}
-        <ElementErrorBoundary name="BigBrotherHouse" onError={handleComponentError}>
-          <BigBrotherHouse />
-        </ElementErrorBoundary>
-        
-        {/* Status indicators in 3D space */}
-        <ElementErrorBoundary name="StatusIndicators" onError={handleComponentError}>
-          <StatusIndicators />
-        </ElementErrorBoundary>
-        
-        {/* Phase-specific visualizations */}
-        <ElementErrorBoundary name="PhaseVisualizer" onError={handleComponentError}>
-          <PhaseVisualizer />
-        </ElementErrorBoundary>
-        
-        {/* Phase-specific interactive elements */}
-        <ElementErrorBoundary name="GamePhaseElements" onError={handleComponentError}>
-          <GamePhaseElements 
-            currentPhase={currentPhase} 
-            setOverlay={setOverlay} 
-          />
-        </ElementErrorBoundary>
-      </Suspense>
+      {/* Add a simple placeholder house */}
+      <group position={[0, 0, -10]}>
+        <mesh position={[0, 1, 0]}>
+          <boxGeometry args={[5, 2, 5]} />
+          <meshStandardMaterial color="#8888FF" />
+        </mesh>
+        <mesh position={[0, 2.5, 0]}>
+          <boxGeometry args={[6, 1, 6]} />
+          <meshStandardMaterial color="#888888" />
+        </mesh>
+      </group>
+      
+      {/* Ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
+        <planeGeometry args={[100, 100]} />
+        <meshStandardMaterial color="#336633" />
+      </mesh>
     </>
   );
 };
