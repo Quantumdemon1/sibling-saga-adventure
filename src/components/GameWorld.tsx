@@ -59,7 +59,7 @@ const ThreeComponentsLazy = React.lazy(() =>
 );
 
 const GameWorld: React.FC = () => {
-  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(true); // Start with 3D enabled by default
+  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(false); // Start with 3D disabled by default
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
   useEffect(() => {

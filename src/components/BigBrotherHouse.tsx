@@ -67,7 +67,7 @@ const BigBrotherHouse: React.FC = () => {
       
       {/* HoH Room access - only visible when HoH is determined */}
       {(currentPhase !== 'hohCompetition' && hoh) && (
-        <mesh position={[0, 0, -30]} rotation={[0, 0, 0]}>
+        <mesh position={[0, 0, -30]}>
           <boxGeometry args={[3, 4, 0.2]} />
           <meshStandardMaterial color="gold" />
         </mesh>

@@ -31,46 +31,59 @@ export const usePreloadModels = () => {
   return isLoaded;
 };
 
-// Safe model generation function that doesn't try to load real models
+// Safe model generation function that uses simple geometries
 export const useGameModel = (modelKey: ModelKey) => {
-  // Create a basic default model to return
+  // Create a simple mesh to represent the model
   const group = new THREE.Group();
   
-  // Create a simple mesh to represent the model
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshStandardMaterial({ 
-    color: 0x888888,
-    transparent: true,
-    opacity: 0.5
-  });
+  // Color mapping for different models
+  const colors = {
+    house: 0x8888FF,
+    nominationBox: 0xFF8888,
+    npc: 0x88FF88,
+    hohChair: 0xFFFF88,
+    vetoNecklace: 0xFF88FF,
+  };
   
-  // Each model type gets a slightly different color
+  // Create different geometries based on model type
+  let geometry: THREE.BufferGeometry;
+  
   switch(modelKey) {
     case 'house':
-      material.color.set(0x8888FF);
+      geometry = new THREE.BoxGeometry(2, 1.5, 2);
       break;
     case 'nominationBox':
-      material.color.set(0xFF8888);
+      geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
       break;
     case 'npc':
-      material.color.set(0x88FF88);
+      // Simple character shape
+      geometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
       break;
     case 'hohChair':
-      material.color.set(0xFFFF88);
+      geometry = new THREE.CylinderGeometry(0.6, 0.6, 1, 16);
       break;
     case 'vetoNecklace':
-      material.color.set(0xFF88FF);
+      geometry = new THREE.TorusGeometry(0.5, 0.1, 8, 24);
       break;
+    default:
+      geometry = new THREE.BoxGeometry(1, 1, 1);
   }
+  
+  // Create material with appropriate color
+  const material = new THREE.MeshStandardMaterial({ 
+    color: colors[modelKey] || 0x888888,
+    transparent: true,
+    opacity: 0.8
+  });
   
   const mesh = new THREE.Mesh(geometry, material);
   group.add(mesh);
   
-  // Return a simple object structure
+  // Return a simple object structure without any custom properties
   return {
     scene: group,
-    animations: [],
-    asset: null
+    animations: [] as THREE.AnimationClip[],
+    modelKey
   };
 };
 

@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { PointerLockControls } from '@react-three/drei';
+import { PointerLockControls, Stats } from '@react-three/drei';
 import { usePreloadModels } from '@/utils/modelLoader';
 import { toast } from '@/hooks/use-toast';
 
@@ -118,7 +118,7 @@ const ThreeComponents: React.FC = () => {
             antialias: true, 
             alpha: false,
             powerPreference: 'default',
-            failIfMajorPerformanceCaveat: false
+            failIfMajorPerformanceCaveat: true
           }}
           onClick={handleLock}
           frameloop="demand"

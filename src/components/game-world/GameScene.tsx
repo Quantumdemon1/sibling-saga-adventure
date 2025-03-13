@@ -1,5 +1,5 @@
 
-import React, { Suspense, useRef, useState, useEffect } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Sky, Stats } from '@react-three/drei';
 import useGameStateStore from '@/stores/gameStateStore';
 
@@ -8,8 +8,6 @@ import Ground from './Ground';
 import GamePhaseElements from './GamePhaseElements';
 import SceneLights from '../SceneLights';
 import BigBrotherHouse from '../BigBrotherHouse';
-import NPCsContainer from '../NPCsContainer';
-import Player from '../Player';
 import StatusIndicators from '../StatusIndicators';
 import PhaseVisualizer from '../phase-visualizations/PhaseVisualizer';
 
@@ -100,22 +98,12 @@ const GameScene: React.FC<GameSceneProps> = ({ controlsRef, debug }) => {
           <PhaseVisualizer />
         </ElementErrorBoundary>
         
-        {/* NPCs Container - all NPCs will be managed here */}
-        <ElementErrorBoundary name="NPCsContainer" onError={handleComponentError}>
-          <NPCsContainer />
-        </ElementErrorBoundary>
-        
         {/* Phase-specific interactive elements */}
         <ElementErrorBoundary name="GamePhaseElements" onError={handleComponentError}>
           <GamePhaseElements 
             currentPhase={currentPhase} 
             setOverlay={setOverlay} 
           />
-        </ElementErrorBoundary>
-        
-        {/* Player controller */}
-        <ElementErrorBoundary name="Player" onError={handleComponentError}>
-          <Player controls={controlsRef} />
         </ElementErrorBoundary>
       </Suspense>
     </>
