@@ -24,13 +24,26 @@ export const usePreloadModels = () => {
         // Create a promise for each model path with proper error handling
         const promises = Object.values(MODEL_PATHS).map((path) => {
           // Wrap in a promise that always resolves with either the model or null
-          return new Promise<any>(resolve => {
-            useGLTF.preload(path)
-              .then(result => resolve(result))
-              .catch(error => {
-                console.log(`Model not found: ${path}`, error);
-                resolve(null); // Always resolve with null for failed loads
-              });
+          return new Promise<any>((resolve) => {
+            // We need to handle the case where useGLTF.preload could return undefined
+            try {
+              const preloadPromise = useGLTF.preload(path);
+              // Ensure we're handling a promise - this addresses the TypeScript error
+              if (preloadPromise && typeof preloadPromise.then === 'function') {
+                preloadPromise
+                  .then(result => resolve(result))
+                  .catch(error => {
+                    console.log(`Model not found: ${path}`, error);
+                    resolve(null); // Always resolve with null for failed loads
+                  });
+              } else {
+                console.log(`Invalid preload result for: ${path}`);
+                resolve(null);
+              }
+            } catch (error) {
+              console.log(`Error preloading model: ${path}`, error);
+              resolve(null);
+            }
           });
         });
         
