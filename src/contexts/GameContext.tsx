@@ -21,9 +21,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isGameActive, setIsGameActive] = useState(false);
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
 
+  // Set the player ID only once when the game starts
   useEffect(() => {
-    // Set the player ID when the game starts
-    if (isGameActive && !currentPlayerId) {
+    if (isGameActive && !currentPlayerId && players.length > 0) {
       const humanPlayer = players.find(p => p.isHuman);
       if (humanPlayer) {
         setCurrentPlayerId(humanPlayer.id);
@@ -31,9 +31,16 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [isGameActive, players, currentPlayerId]);
 
+  // Only set the phase once when the game becomes active
+  useEffect(() => {
+    if (isGameActive) {
+      setPhase('idle');
+    }
+  }, [isGameActive, setPhase]);
+
   const startGame = () => {
     setIsGameActive(true);
-    setPhase('idle');
+    // Phase setting moved to useEffect to prevent render loop
   };
 
   const endGame = () => {

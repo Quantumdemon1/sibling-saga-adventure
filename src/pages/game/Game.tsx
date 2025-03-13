@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useGameContext } from '@/contexts/GameContext';
 import useGameStateStore, { useInitialPlayers } from '@/stores/gameStateStore';
@@ -32,23 +31,26 @@ const Game = () => {
   const [view3D, setView3D] = useState(false); // Always start with 2D view for reliability
   const [view3DError, setView3DError] = useState(false);
   const [isGameReady, setIsGameReady] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false); // Add this to prevent multiple calls
 
   useEffect(() => {
-    // Start the game if it's not already active
-    if (!isGameActive) {
-      console.log("Starting game automatically");
+    // Only start the game once to prevent infinite loop
+    if (!isGameActive && !gameStarted) {
+      console.log("Starting game");
+      setGameStarted(true);
       startGame();
     }
 
-    // Start with an idle phase
+    // Mark the game as ready once we're in idle phase
     if (isGameActive && currentPhase === 'idle') {
       console.log("Game initialized");
       setIsGameReady(true);
-    } else {
-      setIsGameReady(true); // Ensure UI renders even if game state is unexpected
+    } else if (isGameActive) {
+      // Handle any other phase
+      setIsGameReady(true);
     }
-  }, [isGameActive, currentPhase, startGame]);
-
+  }, [isGameActive, currentPhase, startGame, gameStarted]);
+  
   const handlePhaseChange = (phase: string) => {
     setPhase(phase as any);
     setOverlay(null);
