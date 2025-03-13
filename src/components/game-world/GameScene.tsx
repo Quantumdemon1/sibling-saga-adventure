@@ -1,15 +1,19 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Sky, Environment } from '@react-three/drei';
-import { useGameModel } from '@/utils/modelLoader';
 import House from '../House';
 import BigBrotherHouse from '../BigBrotherHouse';
 
 const GameScene: React.FC = () => {
-  // Simple trees using basic Three.js geometries instead of complex models
-  const renderTrees = () => {
+  // Create tree positions and geometries using useMemo to prevent recreating on each render
+  const treeData = useMemo(() => {
     const treePositions = [[-10, -10], [10, -10], [-10, 10], [10, 10]];
-    return treePositions.map((pos, i) => (
+    return treePositions;
+  }, []);
+
+  // Render trees with safer implementation
+  const renderTrees = () => {
+    return treeData.map((pos, i) => (
       <group key={i} position={[pos[0], 0, pos[1]]}>
         {/* Tree trunk */}
         <mesh position={[0, 1.5, 0]} castShadow>

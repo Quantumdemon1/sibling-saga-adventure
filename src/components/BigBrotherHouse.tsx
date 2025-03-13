@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -17,7 +17,7 @@ const BigBrotherHouse: React.FC = () => {
     doorMaterial,
     windowGeometry,
     windowMaterial
-  ] = React.useMemo(() => [
+  ] = useMemo(() => [
     new THREE.BoxGeometry(22, 0.2, 32),
     new THREE.MeshStandardMaterial({ color: "#7B7B7B" }),
     new THREE.BoxGeometry(20, 5, 30),
@@ -35,7 +35,7 @@ const BigBrotherHouse: React.FC = () => {
   ], []);
 
   // Create window positions
-  const windowPositions = React.useMemo(() => {
+  const windowPositions = useMemo(() => {
     return [-7, -3.5, 0, 3.5, 7].map(x => new THREE.Vector3(x, 3, 15.01));
   }, []);
 
