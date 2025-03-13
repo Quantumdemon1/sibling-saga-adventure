@@ -29,10 +29,12 @@ const InteractiveObject: React.FC<InteractiveObjectProps> = ({
   const [hovered, setHovered] = useState(false);
   const [wasPressed, setWasPressed] = useState(false);
   
+  // Get keyboard controls using the proper API
+  const keyboard = useKeyboardControls();
+  
   useFrame((state) => {
     // Check interaction with E key
-    const keyboard = useKeyboardControls.get();
-    const eKeyPressed = keyboard?.interact || false;
+    const eKeyPressed = keyboard ? (keyboard[2]?.interact || false) : false;
     
     // Handle key up/down to prevent multiple triggers
     if (eKeyPressed && !wasPressed) {

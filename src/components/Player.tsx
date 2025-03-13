@@ -16,6 +16,9 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
   const jumpForceRef = useRef(0);
   const { scene } = useThree();
   
+  // Get keyboard controls using the proper API
+  const keyboard = useKeyboardControls();
+  
   // Initialize player position
   useEffect(() => {
     if (playerRef.current) {
@@ -28,13 +31,12 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     if (!playerRef.current) return;
     
     // Get current keystate
-    const keyboard = useKeyboardControls.get();
-    const forward = keyboard?.forward || false;
-    const backward = keyboard?.backward || false;
-    const left = keyboard?.left || false;
-    const right = keyboard?.right || false;
-    const shift = keyboard?.shift || false;
-    const space = keyboard?.space || false;
+    const forward = keyboard ? (keyboard[2]?.forward || false) : false;
+    const backward = keyboard ? (keyboard[2]?.backward || false) : false;
+    const left = keyboard ? (keyboard[2]?.left || false) : false;
+    const right = keyboard ? (keyboard[2]?.right || false) : false;
+    const shift = keyboard ? (keyboard[2]?.shift || false) : false;
+    const space = keyboard ? (keyboard[2]?.space || false) : false;
     
     // Get movement speed (sprint with shift)
     const speed = shift ? 0.15 : 0.08;
