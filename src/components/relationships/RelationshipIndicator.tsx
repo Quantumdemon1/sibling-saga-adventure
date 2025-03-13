@@ -3,19 +3,26 @@ import React from 'react';
 import { Heart, X, Flame, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Relationship } from '@/types/gameTypes';
 import { getRelationshipScore, getRelationshipVisuals } from '@/utils/relationshipUtils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 interface RelationshipIndicatorProps {
   relationship: Relationship;
   showIcon?: boolean;
   showScore?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  showTooltip?: boolean;
 }
 
 const RelationshipIndicator: React.FC<RelationshipIndicatorProps> = ({ 
   relationship, 
   showIcon = true, 
   showScore = true,
-  size = 'md'
+  size = 'md',
+  showTooltip = false
 }) => {
   const score = getRelationshipScore(relationship);
   const { color, textColor } = getRelationshipVisuals(relationship);
@@ -41,13 +48,28 @@ const RelationshipIndicator: React.FC<RelationshipIndicatorProps> = ({
     return null;
   };
 
-  return (
+  const indicator = (
     <div className={`${sizeClasses[size]} rounded-full ${color} ${textColor} font-medium flex items-center`}>
       {showIcon && getIcon()}
       {showScore && <span>{score} / 100</span>}
       {!showScore && <span className="capitalize">{relationship.type}</span>}
     </div>
   );
+
+  if (showTooltip) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {indicator}
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Relationship: {score}/100</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return indicator;
 };
 
 export default RelationshipIndicator;
