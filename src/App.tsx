@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -51,9 +52,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }> {
     return this.props.children;
   }
 }
-
-// Fix the import error for React
-import React from "react";
 
 const queryClient = new QueryClient();
 

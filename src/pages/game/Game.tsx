@@ -29,8 +29,9 @@ const Game = () => {
   
   // Local UI state
   const [showControls, setShowControls] = useState(true);
-  const [view3D, setView3D] = useState(false); // Start with 2D view to help with performance
+  const [view3D, setView3D] = useState(false); // Start with 2D view for reliability
   const [view3DError, setView3DError] = useState(false);
+  const [isGameReady, setIsGameReady] = useState(false);
 
   useEffect(() => {
     // Start the game if it's not already active
@@ -42,6 +43,9 @@ const Game = () => {
     // Start with an idle phase
     if (isGameActive && currentPhase === 'idle') {
       console.log("Game initialized");
+      setIsGameReady(true);
+    } else {
+      setIsGameReady(true); // Ensure UI renders even if game state is unexpected
     }
   }, [isGameActive, currentPhase, startGame]);
 
@@ -86,6 +90,20 @@ const Game = () => {
       variant: "destructive"
     });
   };
+
+  // If game isn't ready yet, show loading screen
+  if (!isGameReady) {
+    return (
+      <div className="game-container h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <h2 className="text-2xl mb-4">Initializing Game...</h2>
+          <div className="w-32 h-2 mx-auto bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-full bg-purple-600 animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="game-container relative h-screen bg-slate-900">

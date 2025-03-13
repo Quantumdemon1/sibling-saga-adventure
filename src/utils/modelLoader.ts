@@ -17,7 +17,7 @@ export type ModelKey = keyof typeof MODEL_PATHS;
 
 // Hook to preload all models
 export const usePreloadModels = () => {
-  const [isLoaded, setIsLoaded] = useState(true); // Changed to true to avoid loading screen in development
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const loadModels = async () => {
@@ -26,11 +26,7 @@ export const usePreloadModels = () => {
         const preloadModel = (path: string) => {
           return new Promise<void>((resolve) => {
             try {
-              // Instead of using the cache property which doesn't exist in the type definitions,
-              // we'll use the preload method, which is the official way to preload models
               useGLTF.preload(path);
-              
-              // Always resolve since we're just preloading
               resolve();
             } catch (error) {
               console.warn(`Error preloading model: ${path}`, error);
@@ -42,12 +38,12 @@ export const usePreloadModels = () => {
         // Create a promise for each model
         const promises = Object.values(MODEL_PATHS).map(preloadModel);
         
-        // All promises will resolve
+        // Wait for all promises to resolve
         await Promise.all(promises);
         setIsLoaded(true);
       } catch (error) {
         console.error("Error loading models:", error);
-        // Return true anyway to avoid being stuck on loading screen
+        // Set loaded to true to avoid being stuck on loading screen
         setIsLoaded(true);
       }
     };
@@ -75,7 +71,8 @@ export const useGameModel = (modelKey: ModelKey) => {
     return useGLTF(MODEL_PATHS[modelKey]);
   } catch (error) {
     console.error(`Error loading model: ${modelKey}`, error);
-    return { scene: null };
+    // Return a default empty scene if model loading fails
+    return { scene: new THREE.Group() };
   }
 };
 
