@@ -34,7 +34,7 @@ class GameWorldErrorBoundary extends React.Component<{
   }
 }
 
-// Lazy load Three.js components with better error handling
+// Dynamically import Three.js components to prevent rendering issues
 const ThreeComponentsLazy = React.lazy(() => 
   import('./game-world/ThreeComponents')
     .catch(error => {
@@ -44,7 +44,7 @@ const ThreeComponentsLazy = React.lazy(() =>
 );
 
 const GameWorld: React.FC = () => {
-  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(true);
+  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(false); // Start with 3D disabled
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
   useEffect(() => {
@@ -64,6 +64,7 @@ const GameWorld: React.FC = () => {
           throw new Error('Three.js cannot be initialized');
         });
         
+        // Set 3D as available only if all checks pass
         setIs3DAvailable(true);
       } catch (error) {
         console.error("3D view unavailable:", error);

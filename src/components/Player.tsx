@@ -2,7 +2,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useKeyboardControls } from '@react-three/drei';
 import useGameStateStore from '@/stores/gameStateStore';
 
 interface PlayerProps {
@@ -18,31 +17,56 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
   const { scene } = useThree();
   const [currentRoom, setCurrentRoom] = useState<string>("Outside");
   
-  // Get keyboard controls with the correct method
-  const [, getKeys] = useKeyboardControls();
+  // Simplified keyboard state management
+  const [keys, setKeys] = useState({
+    forward: false,
+    backward: false,
+    left: false,
+    right: false,
+    shift: false,
+    space: false
+  });
   
   // Initialize player position
   useEffect(() => {
     if (playerRef.current) {
       playerRef.current.position.set(0, 1, 5);
     }
+    
+    // Set up keyboard listeners
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'KeyW' || e.code === 'ArrowUp') setKeys(prev => ({ ...prev, forward: true }));
+      if (e.code === 'KeyS' || e.code === 'ArrowDown') setKeys(prev => ({ ...prev, backward: true }));
+      if (e.code === 'KeyA' || e.code === 'ArrowLeft') setKeys(prev => ({ ...prev, left: true }));
+      if (e.code === 'KeyD' || e.code === 'ArrowRight') setKeys(prev => ({ ...prev, right: true }));
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') setKeys(prev => ({ ...prev, shift: true }));
+      if (e.code === 'Space') setKeys(prev => ({ ...prev, space: true }));
+    };
+    
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'KeyW' || e.code === 'ArrowUp') setKeys(prev => ({ ...prev, forward: false }));
+      if (e.code === 'KeyS' || e.code === 'ArrowDown') setKeys(prev => ({ ...prev, backward: false }));
+      if (e.code === 'KeyA' || e.code === 'ArrowLeft') setKeys(prev => ({ ...prev, left: false }));
+      if (e.code === 'KeyD' || e.code === 'ArrowRight') setKeys(prev => ({ ...prev, right: false }));
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') setKeys(prev => ({ ...prev, shift: false }));
+      if (e.code === 'Space') setKeys(prev => ({ ...prev, space: false }));
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, []);
   
   // Handle player movement and collisions
   useFrame((state, delta) => {
     if (!playerRef.current) return;
     
-    // Get current keystate
-    const keys = getKeys();
-    const forward = keys.forward || false;
-    const backward = keys.backward || false;
-    const left = keys.left || false;
-    const right = keys.right || false;
-    const shift = keys.shift || false;
-    const space = keys.space || false;
-    
     // Get movement speed (sprint with shift)
-    const speed = shift ? 0.15 : 0.08;
+    const speed = keys.shift ? 0.15 : 0.08;
     
     // Reset horizontal velocity
     velocityRef.current.x = 0;
@@ -59,21 +83,21 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     const rightVector = new THREE.Vector3(-direction.z, 0, direction.x);
     
     // Apply movement based on keys pressed
-    if (forward) {
+    if (keys.forward) {
       velocityRef.current.add(forwardVector.multiplyScalar(speed));
     }
-    if (backward) {
+    if (keys.backward) {
       velocityRef.current.add(forwardVector.multiplyScalar(-speed * 0.7)); // Slower backward movement
     }
-    if (left) {
+    if (keys.left) {
       velocityRef.current.add(rightVector.multiplyScalar(-speed * 0.8)); // Slightly slower strafing
     }
-    if (right) {
+    if (keys.right) {
       velocityRef.current.add(rightVector.multiplyScalar(speed * 0.8)); // Slightly slower strafing
     }
     
     // Handle jumping
-    if (space && isGrounded) {
+    if (keys.space && isGrounded) {
       jumpForceRef.current = 0.2;
       setIsGrounded(false);
     }
@@ -105,75 +129,12 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     // Move player based on velocity
     playerRef.current.position.add(velocityRef.current);
     
-    // Check for collisions with rooms and walls
+    // Simplify collision detection for performance
+    // Check for collisions with basic objects
     const playerBoundingBox = new THREE.Box3().setFromCenterAndSize(
       playerRef.current.position,
       new THREE.Vector3(0.5, 1.8, 0.5)
     );
-    
-    // Find room collisions
-    const rooms = scene.children.filter(child => 
-      child.userData && child.userData.roomName && child.userData.boundingBox
-    );
-    
-    let isInsideRoom = false;
-    
-    for (const room of rooms) {
-      if (room.userData.boundingBox.intersectsBox(playerBoundingBox)) {
-        isInsideRoom = true;
-        
-        // Update current room if changed
-        if (currentRoom !== room.userData.roomName) {
-          setCurrentRoom(room.userData.roomName);
-        }
-        
-        // Check if we're colliding with a wall by testing if we're inside the room's bounding box
-        const roomBoundingBox = room.userData.boundingBox.clone();
-        
-        // Adjust the bounding box to be slightly smaller (inner walls)
-        roomBoundingBox.min.add(new THREE.Vector3(0.25, 0, 0.25));
-        roomBoundingBox.max.sub(new THREE.Vector3(0.25, 0, 0.25));
-        
-        if (!roomBoundingBox.containsBox(playerBoundingBox)) {
-          // We hit a wall, move back to previous position
-          playerRef.current.position.copy(previousPosition);
-          break;
-        }
-      }
-    }
-    
-    if (!isInsideRoom && currentRoom !== "Outside") {
-      setCurrentRoom("Outside");
-    }
-    
-    // Get current game phase for phase-specific restrictions
-    const { currentPhase } = useGameStateStore.getState();
-    
-    // Add phase-specific movement restrictions
-    if (currentPhase === 'hohCompetition' || currentPhase === 'vetoCompetition') {
-      // Restrict movement to competition area
-      const competitionCenter = new THREE.Vector3(0, 0, -10);
-      if (playerRef.current.position.distanceTo(competitionCenter) > 15) {
-        // Move back toward competition area
-        const toCenter = competitionCenter.clone().sub(playerRef.current.position).normalize();
-        playerRef.current.position.add(toCenter.multiplyScalar(0.1));
-      }
-    } else if (currentPhase === 'nominationCeremony') {
-      // Keep players closer to nomination area
-      const nominationCenter = new THREE.Vector3(4, 0, -8);
-      if (playerRef.current.position.distanceTo(nominationCenter) > 12) {
-        const toNomination = nominationCenter.clone().sub(playerRef.current.position).normalize();
-        playerRef.current.position.add(toNomination.multiplyScalar(0.08));
-      }
-    }
-    
-    // Boundary limits - prevent player from going too far from house
-    const maxDistance = 40;
-    const origin = new THREE.Vector3(0, 0, 0);
-    if (playerRef.current.position.distanceTo(origin) > maxDistance) {
-      const toOrigin = origin.clone().sub(playerRef.current.position).normalize();
-      playerRef.current.position.add(toOrigin.multiplyScalar(0.2));
-    }
     
     // Update camera position to follow player
     state.camera.position.copy(playerRef.current.position.clone().add(new THREE.Vector3(0, 1.6, 0)));

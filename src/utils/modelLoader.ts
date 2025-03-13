@@ -31,16 +31,28 @@ export const usePreloadModels = () => {
   return isLoaded;
 };
 
-// Simplified hook to load a specific model
+// Safe model hook that doesn't rely on undefined properties
 export const useGameModel = (modelKey: ModelKey) => {
-  // Return a default empty scene to avoid errors
-  const defaultModel = {
-    scene: new THREE.Group(),
+  // Create a basic default model to return
+  const group = new THREE.Group();
+  
+  // Create a simple mesh to represent the model
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const material = new THREE.MeshStandardMaterial({ 
+    color: 0x888888,
+    transparent: true,
+    opacity: 0.5
+  });
+  
+  const mesh = new THREE.Mesh(geometry, material);
+  group.add(mesh);
+  
+  // Return a default group with a placeholder mesh
+  return {
+    scene: group,
     animations: [],
     asset: null
   };
-  
-  return defaultModel;
 };
 
 // Export paths for direct access

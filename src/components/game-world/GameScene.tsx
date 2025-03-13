@@ -1,6 +1,5 @@
 
-import React, { Suspense, useRef, useState } from 'react';
-import { useThree } from '@react-three/fiber';
+import React, { Suspense, useRef, useState, useEffect } from 'react';
 import { Sky, Stats } from '@react-three/drei';
 import useGameStateStore from '@/stores/gameStateStore';
 
