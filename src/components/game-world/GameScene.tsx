@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { Sky, Environment } from '@react-three/drei';
+import { Sky } from '@react-three/drei';
 import House from '../House';
 import BigBrotherHouse from '../BigBrotherHouse';
 
@@ -31,9 +31,16 @@ const GameScene: React.FC = () => {
 
   return (
     <>
-      {/* Sky and environment with more stable settings */}
+      {/* Sky with more stable settings */}
       <Sky distance={450000} sunPosition={[100, 20, 100]} />
-      <Environment preset="sunset" />
+      
+      {/* Enhanced ambient and directional lighting to replace Environment */}
+      <ambientLight intensity={0.4} />
+      <directionalLight 
+        position={[10, 10, 5]} 
+        intensity={1.5} 
+        castShadow 
+      />
       
       {/* Main house */}
       <group position={[0, 0, 0]}>

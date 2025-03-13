@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stats, PerspectiveCamera } from '@react-three/drei';
@@ -19,7 +18,6 @@ const ThreeComponents: React.FC = () => {
   const controlsRef = useRef<any>(null);
   const { currentPhase, setOverlay } = useGameStateStore();
   
-  // Toggle debug mode with F3 key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'F3') {
@@ -39,13 +37,11 @@ const ThreeComponents: React.FC = () => {
     setIsLocked(true);
   };
 
-  // Error handler for Canvas errors
   const handleCanvasError = (error: any) => {
     console.error("Canvas render error:", error);
     setCanvasError(error);
   };
 
-  // If we have a canvas error, show a fallback message
   if (canvasError) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-game-bg">
@@ -73,22 +69,19 @@ const ThreeComponents: React.FC = () => {
         gl={{ 
           antialias: true, 
           alpha: false,
-          powerPreference: 'default',
-          preserveDrawingBuffer: true,
+          powerPreference: 'high-performance',
           failIfMajorPerformanceCaveat: false
         }}
         onClick={handleLock}
-        frameloop="always" // Changed from demand to always for more reliable rendering
+        frameloop="always"
         onError={handleCanvasError}
       >
         <color attach="background" args={['#87CEEB']} />
         <fog attach="fog" args={['#87CEEB', 30, 100]} />
         
         <Suspense fallback={<LoadingScreen />}>
-          {/* Camera setup */}
           <PerspectiveCamera makeDefault position={[0, 2, 10]} fov={75} />
           
-          {/* Controls */}
           <OrbitControls 
             ref={controlsRef}
             enableZoom={true}
@@ -100,36 +93,27 @@ const ThreeComponents: React.FC = () => {
             maxDistance={50}
           />
           
-          {/* Lighting */}
           <SceneLights />
           
-          {/* Game environment */}
           <GameScene />
           
-          {/* Ground */}
           <Ground size={[100, 100]} />
           
-          {/* Phase-specific visualizations */}
           <PhaseVisualizer />
           
-          {/* NPCs */}
           <NPCsContainer />
           
-          {/* Interactive elements based on game phase */}
           <GamePhaseElements 
             currentPhase={currentPhase} 
             setOverlay={setOverlay} 
           />
           
-          {/* Player */}
           <Player controls={controlsRef} />
           
-          {/* Debug stats */}
           {debug && <Stats />}
         </Suspense>
       </Canvas>
       
-      {/* Game controls overlay */}
       <div className="absolute bottom-4 left-4 right-4 flex justify-center z-40">
         <div className="bg-black bg-opacity-70 p-2 rounded">
           <div className="text-white text-sm font-bold mb-1 text-center">Controls</div>
