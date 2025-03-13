@@ -19,6 +19,31 @@ interface GameSceneProps {
   debug: boolean;
 }
 
+// Simple error boundary component for individual scene elements
+class ElementErrorBoundary extends React.Component<{
+  children: React.ReactNode;
+  name: string;
+  onError: (name: string, error: Error) => void;
+}> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    this.props.onError(this.props.name, error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null; // Return nothing when there's an error
+    }
+
+    return this.props.children;
+  }
+}
+
 const GameScene: React.FC<GameSceneProps> = ({ controlsRef, debug }) => {
   const { currentPhase, setOverlay } = useGameStateStore();
   const [sceneError, setSceneError] = useState<string | null>(null);
@@ -52,68 +77,46 @@ const GameScene: React.FC<GameSceneProps> = ({ controlsRef, debug }) => {
       <SceneLights />
       
       <Suspense fallback={<LoadingScreen />}>
-        <ErrorBoundaryGroup onError={(name, error) => handleComponentError(name, error)}>
-          {/* Ground */}
-          <ComponentWithErrorBoundary name="Ground">
-            <Ground size={[100, 100]} />
-          </ComponentWithErrorBoundary>
-          
-          {/* Big Brother House */}
-          <ComponentWithErrorBoundary name="BigBrotherHouse">
-            <BigBrotherHouse />
-          </ComponentWithErrorBoundary>
-          
-          {/* Status indicators in 3D space */}
-          <ComponentWithErrorBoundary name="StatusIndicators">
-            <StatusIndicators />
-          </ComponentWithErrorBoundary>
-          
-          {/* Phase-specific visualizations */}
-          <ComponentWithErrorBoundary name="PhaseVisualizer">
-            <PhaseVisualizer />
-          </ComponentWithErrorBoundary>
-          
-          {/* NPCs Container - all NPCs will be managed here */}
-          <ComponentWithErrorBoundary name="NPCsContainer">
-            <NPCsContainer />
-          </ComponentWithErrorBoundary>
-          
-          {/* Phase-specific interactive elements */}
-          <ComponentWithErrorBoundary name="GamePhaseElements">
-            <GamePhaseElements 
-              currentPhase={currentPhase} 
-              setOverlay={setOverlay} 
-            />
-          </ComponentWithErrorBoundary>
-          
-          {/* Player controller */}
-          <ComponentWithErrorBoundary name="Player">
-            <Player controls={controlsRef} />
-          </ComponentWithErrorBoundary>
-        </ErrorBoundaryGroup>
+        {/* Ground */}
+        <ElementErrorBoundary name="Ground" onError={handleComponentError}>
+          <Ground size={[100, 100]} />
+        </ElementErrorBoundary>
+        
+        {/* Big Brother House */}
+        <ElementErrorBoundary name="BigBrotherHouse" onError={handleComponentError}>
+          <BigBrotherHouse />
+        </ElementErrorBoundary>
+        
+        {/* Status indicators in 3D space */}
+        <ElementErrorBoundary name="StatusIndicators" onError={handleComponentError}>
+          <StatusIndicators />
+        </ElementErrorBoundary>
+        
+        {/* Phase-specific visualizations */}
+        <ElementErrorBoundary name="PhaseVisualizer" onError={handleComponentError}>
+          <PhaseVisualizer />
+        </ElementErrorBoundary>
+        
+        {/* NPCs Container - all NPCs will be managed here */}
+        <ElementErrorBoundary name="NPCsContainer" onError={handleComponentError}>
+          <NPCsContainer />
+        </ElementErrorBoundary>
+        
+        {/* Phase-specific interactive elements */}
+        <ElementErrorBoundary name="GamePhaseElements" onError={handleComponentError}>
+          <GamePhaseElements 
+            currentPhase={currentPhase} 
+            setOverlay={setOverlay} 
+          />
+        </ElementErrorBoundary>
+        
+        {/* Player controller */}
+        <ElementErrorBoundary name="Player" onError={handleComponentError}>
+          <Player controls={controlsRef} />
+        </ElementErrorBoundary>
       </Suspense>
     </>
   );
-};
-
-// Component that wraps children in an error boundary
-interface ComponentWithErrorBoundaryProps {
-  children: React.ReactNode;
-  name: string;
-}
-
-const ComponentWithErrorBoundary: React.FC<ComponentWithErrorBoundaryProps> = ({ children, name }) => {
-  return <>{children}</>;
-};
-
-// Group of error boundaries with a common error handler
-interface ErrorBoundaryGroupProps {
-  children: React.ReactNode;
-  onError: (name: string, error: Error) => void;
-}
-
-const ErrorBoundaryGroup: React.FC<ErrorBoundaryGroupProps> = ({ children, onError }) => {
-  return <>{children}</>;
 };
 
 export default GameScene;

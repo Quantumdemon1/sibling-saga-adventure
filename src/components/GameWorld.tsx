@@ -2,12 +2,44 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
-// Dynamically import Three.js related components to prevent initialization errors
-const ThreeComponents = React.lazy(() => 
+// Main error boundary for the entire 3D world
+class GameWorldErrorBoundary extends React.Component<{
+  children: React.ReactNode;
+  onError: (error: Error) => void;
+}> {
+  state = { hasError: false };
+  
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  
+  componentDidCatch(error: Error) {
+    console.error("Game World Error:", error);
+    this.props.onError(error);
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-black text-white">
+          <div className="text-center p-4">
+            <h2 className="text-2xl mb-4 text-red-500">3D View Error</h2>
+            <p>We couldn't load the 3D view. Please try switching to 2D mode.</p>
+          </div>
+        </div>
+      );
+    }
+    
+    return this.props.children;
+  }
+}
+
+// Lazy load Three.js components with better error handling
+const ThreeComponentsLazy = React.lazy(() => 
   import('./game-world/ThreeComponents')
     .catch(error => {
       console.error("Failed to load Three.js components:", error);
-      return { default: () => null };
+      throw error; // Rethrow to be caught by error boundary
     })
 );
 
@@ -19,7 +51,15 @@ const GameWorld: React.FC = () => {
     // Check if Three.js is available and can be initialized
     const checkThreeJsAvailability = async () => {
       try {
-        // Test if Three.js can be initialized
+        // Test if WebGL is available
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        
+        if (!gl) {
+          throw new Error('WebGL not supported');
+        }
+        
+        // Try to import Three.js
         await import('three').catch(() => {
           throw new Error('Three.js cannot be initialized');
         });
@@ -30,7 +70,7 @@ const GameWorld: React.FC = () => {
         setIs3DAvailable(false);
         toast({
           title: "3D View Unavailable",
-          description: "Unable to initialize 3D view. Using 2D mode instead.",
+          description: "Your browser doesn't support 3D view. Using 2D mode instead.",
           variant: "destructive",
         });
       } finally {
@@ -40,6 +80,16 @@ const GameWorld: React.FC = () => {
     
     checkThreeJsAvailability();
   }, []);
+  
+  const handleError = (error: Error) => {
+    console.error("GameWorld error:", error);
+    setIs3DAvailable(false);
+    toast({
+      title: "3D View Error",
+      description: "Encountered an error in 3D view. Switched to 2D mode.",
+      variant: "destructive",
+    });
+  };
   
   if (isLoading) {
     return (
@@ -69,13 +119,15 @@ const GameWorld: React.FC = () => {
   }
   
   return (
-    <React.Suspense fallback={
-      <div className="w-full h-full flex items-center justify-center bg-black">
-        <div className="animate-spin w-10 h-10 border-4 border-purple-500 rounded-full border-t-transparent"></div>
-      </div>
-    }>
-      <ThreeComponents />
-    </React.Suspense>
+    <GameWorldErrorBoundary onError={handleError}>
+      <React.Suspense fallback={
+        <div className="w-full h-full flex items-center justify-center bg-black">
+          <div className="animate-spin w-10 h-10 border-4 border-purple-500 rounded-full border-t-transparent"></div>
+        </div>
+      }>
+        <ThreeComponentsLazy />
+      </React.Suspense>
+    </GameWorldErrorBoundary>
   );
 };
 
