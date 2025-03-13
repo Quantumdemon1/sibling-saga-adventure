@@ -1,16 +1,16 @@
-
 import React, { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PointerLockControls, Sky, Stats } from '@react-three/drei';
 import useGameStateStore from '@/stores/gameStateStore';
 import Player from './Player';
 import NPC from './NPC';
-import House from './House';
+import BigBrotherHouse from './BigBrotherHouse';
 import NominationBox from './NominationBox';
 import SceneLights from './SceneLights';
 import InteractiveObject from './InteractiveObject';
 import StatusIndicators from './StatusIndicators';
 import { Box } from '@react-three/drei';
+import { usePreloadModels } from '@/utils/modelLoader';
 
 interface LoadingScreenProps {
   progress?: number;
@@ -80,6 +80,7 @@ const GameWorld: React.FC = () => {
   const [isLocked, setIsLocked] = useState(false);
   const controlsRef = useRef<any>(null);
   const [debug, setDebug] = useState(false);
+  const modelsLoaded = usePreloadModels();
   
   // Listen for keyboard shortcuts
   useEffect(() => {
@@ -108,6 +109,22 @@ const GameWorld: React.FC = () => {
     }
   };
 
+  // Show a loading screen until models are loaded
+  const loadingContent = (
+    <div className="w-full h-full flex items-center justify-center bg-black text-white">
+      <div className="text-center">
+        <h2 className="text-2xl mb-4">Loading Big Brother RPG...</h2>
+        <div className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-full bg-purple-600 animate-pulse" style={{ width: '100%' }}></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!modelsLoaded) {
+    return loadingContent;
+  }
+
   return (
     <div className="w-full h-full relative">
       <Canvas
@@ -126,8 +143,8 @@ const GameWorld: React.FC = () => {
           {/* Ground */}
           <Ground size={[100, 100]} />
           
-          {/* Main House */}
-          <House />
+          {/* Big Brother House - now uses our detailed version */}
+          <BigBrotherHouse />
           
           {/* Status indicators in 3D space */}
           <StatusIndicators />

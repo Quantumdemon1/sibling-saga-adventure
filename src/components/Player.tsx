@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -15,6 +16,7 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
   const gravityRef = useRef(0.01);
   const jumpForceRef = useRef(0);
   const { scene } = useThree();
+  const [currentRoom, setCurrentRoom] = useState<string>("Outside");
   
   // Get keyboard controls with the correct method
   const [, getKeys] = useKeyboardControls();
@@ -26,7 +28,7 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     }
   }, []);
   
-  // Handle player movement
+  // Handle player movement and collisions
   useFrame((state, delta) => {
     if (!playerRef.current) return;
     
@@ -97,8 +99,52 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
       playerRef.current.position.y = intersects[0].point.y + 0.1;
     }
     
+    // Store the current position before attempting to move
+    const previousPosition = playerRef.current.position.clone();
+    
     // Move player based on velocity
     playerRef.current.position.add(velocityRef.current);
+    
+    // Check for collisions with rooms and walls
+    const playerBoundingBox = new THREE.Box3().setFromCenterAndSize(
+      playerRef.current.position,
+      new THREE.Vector3(0.5, 1.8, 0.5)
+    );
+    
+    // Find room collisions
+    const rooms = scene.children.filter(child => 
+      child.userData && child.userData.roomName && child.userData.boundingBox
+    );
+    
+    let isInsideRoom = false;
+    
+    for (const room of rooms) {
+      if (room.userData.boundingBox.intersectsBox(playerBoundingBox)) {
+        isInsideRoom = true;
+        
+        // Update current room if changed
+        if (currentRoom !== room.userData.roomName) {
+          setCurrentRoom(room.userData.roomName);
+        }
+        
+        // Check if we're colliding with a wall by testing if we're inside the room's bounding box
+        const roomBoundingBox = room.userData.boundingBox.clone();
+        
+        // Adjust the bounding box to be slightly smaller (inner walls)
+        roomBoundingBox.min.add(new THREE.Vector3(0.25, 0, 0.25));
+        roomBoundingBox.max.sub(new THREE.Vector3(0.25, 0, 0.25));
+        
+        if (!roomBoundingBox.containsBox(playerBoundingBox)) {
+          // We hit a wall, move back to previous position
+          playerRef.current.position.copy(previousPosition);
+          break;
+        }
+      }
+    }
+    
+    if (!isInsideRoom && currentRoom !== "Outside") {
+      setCurrentRoom("Outside");
+    }
     
     // Get current game phase for phase-specific restrictions
     const { currentPhase } = useGameStateStore.getState();
@@ -109,14 +155,14 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
       const competitionCenter = new THREE.Vector3(0, 0, -10);
       if (playerRef.current.position.distanceTo(competitionCenter) > 15) {
         // Move back toward competition area
-        const toCenter = competitionCenter.sub(playerRef.current.position).normalize();
+        const toCenter = competitionCenter.clone().sub(playerRef.current.position).normalize();
         playerRef.current.position.add(toCenter.multiplyScalar(0.1));
       }
     } else if (currentPhase === 'nominationCeremony') {
       // Keep players closer to nomination area
       const nominationCenter = new THREE.Vector3(4, 0, -8);
       if (playerRef.current.position.distanceTo(nominationCenter) > 12) {
-        const toNomination = nominationCenter.sub(playerRef.current.position).normalize();
+        const toNomination = nominationCenter.clone().sub(playerRef.current.position).normalize();
         playerRef.current.position.add(toNomination.multiplyScalar(0.08));
       }
     }
@@ -125,7 +171,7 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     const maxDistance = 40;
     const origin = new THREE.Vector3(0, 0, 0);
     if (playerRef.current.position.distanceTo(origin) > maxDistance) {
-      const toOrigin = origin.sub(playerRef.current.position).normalize();
+      const toOrigin = origin.clone().sub(playerRef.current.position).normalize();
       playerRef.current.position.add(toOrigin.multiplyScalar(0.2));
     }
     
