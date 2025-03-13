@@ -1,7 +1,6 @@
 
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Box } from '@react-three/drei';
 import useGameStateStore from '@/stores/gameStateStore';
 import * as THREE from 'three';
 
@@ -21,13 +20,13 @@ const NominationBox: React.FC = () => {
   const isActive = currentPhase === 'nominationCeremony';
   
   return (
-    <Box 
+    <mesh 
       ref={boxRef}
-      args={[1.2, 1.2, 1.2]} 
       position={[4, 1, -8]} 
       castShadow 
       receiveShadow
     >
+      <boxGeometry args={[1.2, 1.2, 1.2]} />
       <meshStandardMaterial 
         color={isActive ? "#ffcc00" : "#3366cc"}
         emissive={isActive ? "#ff6600" : "#000000"}
@@ -35,7 +34,7 @@ const NominationBox: React.FC = () => {
         metalness={0.5}
         roughness={0.2}
       />
-    </Box>
+    </mesh>
   );
 };
 

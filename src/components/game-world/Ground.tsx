@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Box } from '@react-three/drei';
 
 interface GroundProps {
   size: [number, number];
@@ -8,13 +7,14 @@ interface GroundProps {
 
 const Ground: React.FC<GroundProps> = ({ size }) => {
   return (
-    <Box 
-      args={[size[0], 0.2, size[1]]} 
+    <mesh 
       position={[0, -0.1, 0]} 
+      rotation={[-Math.PI / 2, 0, 0]}
       receiveShadow
     >
+      <planeGeometry args={size} />
       <meshStandardMaterial color="#8FB275" />
-    </Box>
+    </mesh>
   );
 };
 

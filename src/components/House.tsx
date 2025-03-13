@@ -6,28 +6,33 @@ const House: React.FC = () => {
   return (
     <group position={[0, 0, -10]}>
       {/* Main house structure */}
-      <Box args={[12, 4, 8]} position={[0, 2, 0]} castShadow receiveShadow>
+      <mesh position={[0, 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[12, 4, 8]} />
         <meshStandardMaterial color="#C5B8A5" />
-      </Box>
+      </mesh>
       
       {/* Roof */}
-      <Box args={[13, 1, 9]} position={[0, 4.5, 0]} castShadow>
+      <mesh position={[0, 4.5, 0]} castShadow>
+        <boxGeometry args={[13, 1, 9]} />
         <meshStandardMaterial color="#8B4513" />
-      </Box>
+      </mesh>
       
       {/* Door */}
-      <Box args={[1.5, 2.5, 0.1]} position={[0, 1.25, 4]} castShadow>
+      <mesh position={[0, 1.25, 4]} castShadow>
+        <boxGeometry args={[1.5, 2.5, 0.1]} />
         <meshStandardMaterial color="#5C4033" />
-      </Box>
+      </mesh>
       
       {/* Windows */}
-      <Box args={[1.5, 1.5, 0.1]} position={[-3, 2, 4]} castShadow>
+      <mesh position={[-3, 2, 4]} castShadow>
+        <boxGeometry args={[1.5, 1.5, 0.1]} />
         <meshStandardMaterial color="#B5D3E7" opacity={0.7} transparent />
-      </Box>
+      </mesh>
       
-      <Box args={[1.5, 1.5, 0.1]} position={[3, 2, 4]} castShadow>
+      <mesh position={[3, 2, 4]} castShadow>
+        <boxGeometry args={[1.5, 1.5, 0.1]} />
         <meshStandardMaterial color="#B5D3E7" opacity={0.7} transparent />
-      </Box>
+      </mesh>
     </group>
   );
 };

@@ -82,8 +82,8 @@ const InteractiveObject: React.FC<InteractiveObjectProps> = ({
     >
       {geometry && material ? (
         <>
-          <primitive object={geometry} />
-          <primitive object={material} />
+          <primitive object={geometry} attach="geometry" />
+          <primitive object={material} attach="material" />
         </>
       ) : children ? (
         children

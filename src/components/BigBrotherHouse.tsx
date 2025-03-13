@@ -1,20 +1,16 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Text } from '@react-three/drei';
 
-// Improved house component with better Three.js practices
 const BigBrotherHouse: React.FC = () => {  
-  // Use memoized values for window positions only
-  const windowPositions = useMemo(() => {
-    // Ensure each array has exactly 3 elements for TypeScript type safety
-    return [
-      [-7, 3, 15.01],
-      [-3.5, 3, 15.01],
-      [0, 3, 15.01],
-      [3.5, 3, 15.01],
-      [7, 3, 15.01]
-    ] as const; // Use 'as const' to tell TypeScript these are fixed arrays
-  }, []);
+  // Define window positions as explicitly typed tuples
+  const windowPositions = [
+    [-7, 3, 15.01],
+    [-3.5, 3, 15.01],
+    [0, 3, 15.01],
+    [3.5, 3, 15.01],
+    [7, 3, 15.01]
+  ] as const;
 
   return (
     <group position={[0, 0, -15]}>
@@ -46,15 +42,11 @@ const BigBrotherHouse: React.FC = () => {
       {windowPositions.map((position, i) => (
         <mesh key={i} position={position} castShadow>
           <boxGeometry args={[1.5, 1.5, 0.1]} />
-          <meshStandardMaterial 
-            color="#B5D3E7" 
-            transparent={true} 
-            opacity={0.7} 
-          />
+          <meshStandardMaterial color="#B5D3E7" transparent opacity={0.7} />
         </mesh>
       ))}
       
-      {/* House label - rendered as a sprite for better performance */}
+      {/* House label */}
       <Text 
         position={[0, 6.5, 0]} 
         fontSize={1.2}
