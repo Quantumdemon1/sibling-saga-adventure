@@ -37,12 +37,12 @@ const createMiscActions: StateCreator<
 });
 
 // Create the store with all slices
-const useGameStateStore = create<GameState>((set) => ({
-  ...createGameProgressSlice(set),
-  ...createPlayersSlice(set),
-  ...createUISlice(set),
-  ...createAllianceSlice(set),
-  ...createMiscActions(set),
+const useGameStateStore = create<GameState>()((...a) => ({
+  ...createGameProgressSlice(...a),
+  ...createPlayersSlice(...a),
+  ...createUISlice(...a),
+  ...createAllianceSlice(...a),
+  ...createMiscActions(...a),
 }));
 
 export default useGameStateStore;
