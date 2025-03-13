@@ -61,11 +61,16 @@ const ThreeComponents: React.FC = () => {
 
   const handleLock = () => {
     if (controlsRef.current) {
-      controlsRef.current.lock();
+      try {
+        controlsRef.current.lock();
+      } catch (error) {
+        console.error("Error locking pointer:", error);
+      }
     }
   };
 
   const handleCanvasError = (error: Error) => {
+    console.error("Canvas error:", error);
     setCanvasError(error);
     toast({
       title: "3D Rendering Error",
@@ -109,8 +114,14 @@ const ThreeComponents: React.FC = () => {
         <Canvas
           shadows
           camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 1.6, 5] }}
-          gl={{ antialias: true, alpha: false }}
+          gl={{ 
+            antialias: true, 
+            alpha: false,
+            powerPreference: 'default',
+            failIfMajorPerformanceCaveat: false
+          }}
           onClick={handleLock}
+          frameloop="demand"
         >
           <GameScene 
             controlsRef={controlsRef}

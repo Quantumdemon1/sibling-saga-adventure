@@ -34,6 +34,21 @@ class GameWorldErrorBoundary extends React.Component<{
   }
 }
 
+// Define a simple fallback component for 2D view
+const TwoDView: React.FC = () => (
+  <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
+    <div className="text-center p-6 max-w-md">
+      <h2 className="text-2xl mb-4">2D Game View</h2>
+      <p className="mb-4">
+        You are currently in 2D mode. The 3D view is not available in your browser.
+      </p>
+      <p className="text-gray-300">
+        You can still play all game features in this view.
+      </p>
+    </div>
+  </div>
+);
+
 // Dynamically import Three.js components to prevent rendering issues
 const ThreeComponentsLazy = React.lazy(() => 
   import('./game-world/ThreeComponents')
@@ -44,7 +59,7 @@ const ThreeComponentsLazy = React.lazy(() =>
 );
 
 const GameWorld: React.FC = () => {
-  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(false); // Start with 3D disabled
+  const [is3DAvailable, setIs3DAvailable] = useState<boolean>(true); // Start with 3D enabled by default
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
   useEffect(() => {
@@ -106,17 +121,7 @@ const GameWorld: React.FC = () => {
   }
   
   if (!is3DAvailable) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
-        <div className="text-center p-6 max-w-md">
-          <h2 className="text-2xl mb-4">3D View Unavailable</h2>
-          <p className="mb-4">
-            Your browser doesn't support the 3D view or an error occurred during initialization.
-          </p>
-          <p className="text-gray-300">Please use the 2D view to play the game.</p>
-        </div>
-      </div>
-    );
+    return <TwoDView />;
   }
   
   return (

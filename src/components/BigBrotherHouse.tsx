@@ -2,7 +2,6 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
-import { useGameModel } from '@/utils/modelLoader';
 import useGameStateStore from '@/stores/gameStateStore';
 
 interface RoomData {
@@ -56,7 +55,7 @@ const BigBrotherHouse: React.FC = () => {
     }
   ];
 
-  // Always use the geometric version since models can cause issues
+  // Get current HoH
   const { hoh } = useGameStateStore();
 
   // Create house from room components
@@ -94,15 +93,13 @@ const Room: React.FC<RoomData> = ({ position, size, color, name }) => {
     <mesh position={position} ref={roomRef}>
       <boxGeometry args={size} />
       <meshStandardMaterial color={color} transparent opacity={0.9} />
-      {/* Room label */}
+      {/* Room label - using simpler text approach */}
       <Text 
         position={[0, size[1]/2 + 0.5, 0]} 
         fontSize={0.5}
         color="white"
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.05}
-        outlineColor="black"
       >
         {name}
       </Text>

@@ -31,7 +31,7 @@ export const usePreloadModels = () => {
   return isLoaded;
 };
 
-// Safe model hook that doesn't rely on undefined properties
+// Safe model generation function that doesn't try to load real models
 export const useGameModel = (modelKey: ModelKey) => {
   // Create a basic default model to return
   const group = new THREE.Group();
@@ -44,10 +44,29 @@ export const useGameModel = (modelKey: ModelKey) => {
     opacity: 0.5
   });
   
+  // Each model type gets a slightly different color
+  switch(modelKey) {
+    case 'house':
+      material.color.set(0x8888FF);
+      break;
+    case 'nominationBox':
+      material.color.set(0xFF8888);
+      break;
+    case 'npc':
+      material.color.set(0x88FF88);
+      break;
+    case 'hohChair':
+      material.color.set(0xFFFF88);
+      break;
+    case 'vetoNecklace':
+      material.color.set(0xFF88FF);
+      break;
+  }
+  
   const mesh = new THREE.Mesh(geometry, material);
   group.add(mesh);
   
-  // Return a mock model structure that's safe to use
+  // Return a simple object structure
   return {
     scene: group,
     animations: [],
