@@ -6,6 +6,7 @@ import { usePreloadModels } from '@/utils/modelLoader';
 
 import GameScene from './game-world/GameScene';
 import GameOverlay from './game-world/GameOverlay';
+import GameControls from './GameControls';
 
 const GameWorld: React.FC = () => {
   const [isLocked, setIsLocked] = useState(false);
@@ -24,9 +25,6 @@ const GameWorld: React.FC = () => {
       // Add keyboard hooks for game controls
       if (e.key === 'Escape') {
         setIsLocked(false);
-      }
-      if (e.key === 'e') {
-        // E key handling is done in the InteractiveObject component
       }
     };
     
@@ -81,6 +79,8 @@ const GameWorld: React.FC = () => {
         isLocked={isLocked}
         handleLock={handleLock}
       />
+      
+      <GameControls />
     </div>
   );
 };

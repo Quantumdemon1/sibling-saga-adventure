@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect } from 'react';
 import { useGameContext } from '@/contexts/GameContext';
-import useGameStateStore from '@/stores/gameStateStore';
-import DialogueUI from '@/components/ui/DialogueUI';
-import { motion } from 'framer-motion';
+import useGameStateStore, { useInitialPlayers } from '@/stores/gameStateStore';
 import GameHeader from '@/components/ui/GameHeader';
 import GameSidebar from '@/components/ui/GameSidebar';
 import GameOverlays from '@/components/ui/GameOverlays';
@@ -10,7 +9,7 @@ import GamePhaseManager from '@/components/game-phases/GamePhaseManager';
 import GameWorld from '@/components/GameWorld';
 
 const Game = () => {
-  const { currentPlayerId, isGameActive } = useGameContext();
+  const { currentPlayerId, isGameActive, startGame } = useGameContext();
   const { 
     currentPhase, 
     overlay, 
@@ -24,15 +23,25 @@ const Game = () => {
     setPhase
   } = useGameStateStore();
   
+  // Initialize players
+  const initialPlayers = useInitialPlayers();
+  
+  // Local UI state
   const [showControls, setShowControls] = useState(true);
-  const [view3D, setView3D] = useState(true);
+  const [view3D, setView3D] = useState(false); // Start with 2D view to help with performance
 
   useEffect(() => {
+    // Start the game if it's not already active
+    if (!isGameActive) {
+      console.log("Starting game automatically");
+      startGame();
+    }
+
     // Start with an idle phase
     if (isGameActive && currentPhase === 'idle') {
-      // Game initialization logic can go here
+      console.log("Game initialized");
     }
-  }, [isGameActive, currentPhase]);
+  }, [isGameActive, currentPhase, startGame]);
 
   const handlePhaseChange = (phase: string) => {
     setPhase(phase as any);
@@ -52,36 +61,14 @@ const Game = () => {
     setOverlay({ type: 'alliance' });
   };
 
-  const renderOverlay = () => {
-    if (!overlay) return null;
-
-    switch (overlay.type) {
-      case 'dialogue':
-        return (
-          <DialogueUI 
-            npcId={overlay.npcId} 
-            onClose={() => setOverlay(null)} 
-          />
-        );
-      // Other overlay types will be implemented as we build them
-      default:
-        return null;
-    }
-  };
-
   const toggleView = () => {
     setView3D(prev => !prev);
   };
 
   return (
-    <div className="game-container relative">
+    <div className="game-container relative h-screen bg-slate-900">
       {/* Game header */}
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="absolute top-0 left-0 w-full z-20 glass-panel backdrop-blur-md bg-opacity-90 border-b border-game-glass-border"
-      >
+      <div className="absolute top-0 left-0 w-full z-20 glass-panel backdrop-blur-md bg-opacity-90 border-b border-game-glass-border">
         <GameHeader 
           weekCount={weekCount}
           dayCount={dayCount}
@@ -90,7 +77,7 @@ const Game = () => {
           is3DActive={view3D}
           onToggleView={toggleView}
         />
-      </motion.div>
+      </div>
 
       {/* Main game content */}
       <div className="pt-16 h-full">
@@ -117,10 +104,12 @@ const Game = () => {
       />
 
       {/* Game overlays */}
-      <GameOverlays 
-        overlay={overlay}
-        renderOverlay={renderOverlay}
-      />
+      <GameOverlays overlay={overlay} />
+      
+      {/* Debug info */}
+      <div className="absolute bottom-2 left-2 text-white text-xs opacity-50">
+        Players: {players.length} | Phase: {currentPhase}
+      </div>
     </div>
   );
 };

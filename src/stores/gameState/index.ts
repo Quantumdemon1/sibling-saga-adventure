@@ -1,15 +1,10 @@
 
-import { create } from 'zustand';
 import { StateCreator } from 'zustand';
 import { GameState, MiscActions } from './types';
-import { createGameProgressSlice } from './gameProgressSlice';
-import { createPlayersSlice } from './playersSlice';
-import { createUISlice } from './uiSlice';
-import { createAllianceSlice } from './allianceSlice';
 import { GamePhase } from '@/types/gameTypes';
 
 // Additional actions that affect multiple slices
-const createMiscActions: StateCreator<
+export const createMiscActions: StateCreator<
   GameState,
   [],
   [],
@@ -35,14 +30,3 @@ const createMiscActions: StateCreator<
     allianceProposals: [],
   }),
 });
-
-// Create the store with all slices
-const useGameStateStore = create<GameState>()((...a) => ({
-  ...createGameProgressSlice(...a),
-  ...createPlayersSlice(...a),
-  ...createUISlice(...a),
-  ...createAllianceSlice(...a),
-  ...createMiscActions(...a),
-}));
-
-export default useGameStateStore;
