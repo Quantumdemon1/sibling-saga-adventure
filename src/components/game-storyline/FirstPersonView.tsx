@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { User, Trophy, Shield, Clock, Home, AlertTriangle } from 'lucide-react';
+import { User, Trophy, Shield, Clock, Home, AlertTriangle, Users } from 'lucide-react';
 import RelationshipIndicator from '@/components/relationships/RelationshipIndicator';
+import { getRelationshipScore } from '@/utils/relationshipUtils';
 
 interface FirstPersonViewProps {
   currentPlayerId: string | null;

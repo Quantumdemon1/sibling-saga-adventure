@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import useGameStateStore from '@/stores/gameStateStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Check, UserCheck, AlertTriangle } from 'lucide-react';
+import { Check, UserCheck, AlertTriangle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface NominationUIProps {
@@ -16,10 +15,8 @@ const NominationUI: React.FC<NominationUIProps> = ({ onClose }) => {
   const [selected, setSelected] = useState<string[]>([]);
   const [confirmStep, setConfirmStep] = useState(false);
   
-  // Get the HoH player
   const hohPlayer = players.find(p => p.id === hoh);
   
-  // Get eligible nominees (not HoH and not evicted)
   const eligiblePlayers = players.filter(p => p.status === 'active' && p.id !== hoh);
   
   const handleSelect = (playerId: string) => {

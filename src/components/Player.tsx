@@ -28,7 +28,13 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     if (!playerRef.current) return;
     
     // Get current keystate
-    const { forward, backward, left, right, shift, space } = useKeyboardControls.get();
+    const keyboard = useKeyboardControls.get();
+    const forward = keyboard?.forward || false;
+    const backward = keyboard?.backward || false;
+    const left = keyboard?.left || false;
+    const right = keyboard?.right || false;
+    const shift = keyboard?.shift || false;
+    const space = keyboard?.space || false;
     
     // Get movement speed (sprint with shift)
     const speed = shift ? 0.15 : 0.08;

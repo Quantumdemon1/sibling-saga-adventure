@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useThree } from '@react-three/fiber';
+import * as THREE from 'three';
 
 const SceneLights: React.FC = () => {
   const { scene } = useThree();
@@ -8,7 +9,7 @@ const SceneLights: React.FC = () => {
   // Enable shadows in the scene
   useThree(({ gl }) => {
     gl.shadowMap.enabled = true;
-    gl.shadowMap.type = 4; // PCFSoftShadowMap
+    gl.shadowMap.type = THREE.PCFSoftShadowMap;
   });
 
   return (

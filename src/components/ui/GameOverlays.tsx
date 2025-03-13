@@ -4,13 +4,15 @@ import { OverlayType } from '@/types/gameTypes';
 import DialogueUI from '@/components/ui/DialogueUI';
 import HohCompetitionUI from '@/components/game-ui/HohCompetitionUI';
 import NominationUI from '@/components/game-ui/NominationUI';
-import VetoCeremonyUI from '@/components/game-ui/VetoCeremonyUI';
-import EvictionVotingUI from '@/components/game-ui/EvictionVotingUI';
-import WeeklySummaryUI from '@/components/game-ui/WeeklySummaryUI';
-import AllianceManagementUI from '@/components/game-ui/AllianceManagementUI';
-import AllianceProposalUI from '@/components/game-ui/AllianceProposalUI';
 import WeekSidebarOverlay from '@/components/WeekSidebarOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
+
+// The modules that were not found need to be created
+import VetoCeremonyUI from '@/components/ui/VetoCeremonyUI';
+import EvictionVotingUI from '@/components/ui/EvictionVotingUI';
+import WeeklySummaryUI from '@/components/ui/WeeklySummaryUI';
+import AllianceManagementUI from '@/components/game-ui/AllianceManagementUI';
+import AllianceProposalUI from '@/components/game-ui/AllianceProposalUI';
 
 interface GameOverlaysProps {
   overlay: OverlayType;
