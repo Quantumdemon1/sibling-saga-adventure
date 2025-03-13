@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import ThreeComponents from './game-world/ThreeComponents';
+import ViewSwitcher from './ui/ViewSwitcher';
 
 // Define a simple 2D view component as a fallback
 const TwoDView: React.FC = () => (
@@ -23,7 +24,7 @@ class GameWorldErrorBoundary extends React.Component<{
   children: React.ReactNode;
   onError: (error: Error) => void;
 }> {
-  state = { hasError: false };
+  state = { hasError: false, errorCount: 0 };
   
   static getDerivedStateFromError() {
     return { hasError: true };
@@ -32,6 +33,11 @@ class GameWorldErrorBoundary extends React.Component<{
   componentDidCatch(error: Error) {
     console.error("Game World Error:", error);
     this.props.onError(error);
+    
+    // Update error count
+    this.setState(prevState => ({
+      errorCount: prevState.errorCount + 1
+    }));
   }
   
   render() {
@@ -47,18 +53,25 @@ class GameWorldErrorBoundary extends React.Component<{
 const GameWorld: React.FC = () => {
   const [view3D, setView3D] = useState(true);
   const [renderError, setRenderError] = useState<Error | null>(null);
+  const [errorCount, setErrorCount] = useState(0);
   
   // Handle ThreeJS errors
   const handleError = (error: Error) => {
     console.error("3D view error:", error);
     setRenderError(error);
-    setView3D(false);
     
-    toast({
-      title: "3D View Error",
-      description: "Switching to 2D mode due to rendering issues. You can try 3D mode again later.",
-      variant: "destructive"
-    });
+    // Only force 2D mode after multiple errors
+    if (errorCount >= 2) {
+      setView3D(false);
+      
+      toast({
+        title: "3D View Issues",
+        description: "Switching to 2D mode due to rendering issues. You can try 3D mode again later.",
+        variant: "destructive"
+      });
+    }
+    
+    setErrorCount(prev => prev + 1);
   };
   
   // Clear error state when switching views
@@ -89,12 +102,7 @@ const GameWorld: React.FC = () => {
       
       {/* View switcher */}
       <div className="absolute top-16 right-4 z-30">
-        <button 
-          onClick={toggleView}
-          className="px-3 py-1 bg-game-accent text-white rounded-md text-sm hover:bg-game-accent-hover transition-colors"
-        >
-          Switch to {view3D ? '2D' : '3D'} View
-        </button>
+        <ViewSwitcher is3DActive={view3D} onToggle={toggleView} />
       </div>
     </div>
   );

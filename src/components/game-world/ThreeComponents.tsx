@@ -15,6 +15,7 @@ import GamePhaseElements from './GamePhaseElements';
 const ThreeComponents: React.FC = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [debug, setDebug] = useState(false);
+  const [canvasError, setCanvasError] = useState<Error | null>(null);
   const controlsRef = useRef<any>(null);
   const { currentPhase, setOverlay } = useGameStateStore();
   
@@ -38,6 +39,33 @@ const ThreeComponents: React.FC = () => {
     setIsLocked(true);
   };
 
+  // Error handler for Canvas errors
+  const handleCanvasError = (error: any) => {
+    console.error("Canvas render error:", error);
+    setCanvasError(error);
+  };
+
+  // If we have a canvas error, show a fallback message
+  if (canvasError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-game-bg">
+        <div className="bg-black bg-opacity-70 p-6 rounded-lg text-white max-w-md">
+          <h3 className="text-xl mb-4">3D Rendering Error</h3>
+          <p className="mb-4">
+            There was an error rendering the 3D environment. 
+            This could be due to WebGL issues or browser compatibility.
+          </p>
+          <button 
+            onClick={() => setCanvasError(null)}
+            className="px-4 py-2 bg-game-accent text-white rounded hover:bg-game-accent-hover"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full relative">
       <Canvas
@@ -45,10 +73,13 @@ const ThreeComponents: React.FC = () => {
         gl={{ 
           antialias: true, 
           alpha: false,
-          powerPreference: 'default'
+          powerPreference: 'default',
+          preserveDrawingBuffer: true,
+          failIfMajorPerformanceCaveat: false
         }}
         onClick={handleLock}
-        frameloop="demand"
+        frameloop="always" // Changed from demand to always for more reliable rendering
+        onError={handleCanvasError}
       >
         <color attach="background" args={['#87CEEB']} />
         <fog attach="fog" args={['#87CEEB', 30, 100]} />

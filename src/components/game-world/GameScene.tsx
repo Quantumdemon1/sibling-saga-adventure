@@ -6,10 +6,29 @@ import House from '../House';
 import BigBrotherHouse from '../BigBrotherHouse';
 
 const GameScene: React.FC = () => {
+  // Simple trees using basic Three.js geometries instead of complex models
+  const renderTrees = () => {
+    const treePositions = [[-10, -10], [10, -10], [-10, 10], [10, 10]];
+    return treePositions.map((pos, i) => (
+      <group key={i} position={[pos[0], 0, pos[1]]}>
+        {/* Tree trunk */}
+        <mesh position={[0, 1.5, 0]} castShadow>
+          <cylinderGeometry args={[0.5, 0.5, 3, 8]} />
+          <meshStandardMaterial color="#5D4037" />
+        </mesh>
+        {/* Tree top */}
+        <mesh position={[0, 3.5, 0]} castShadow>
+          <coneGeometry args={[2, 4, 8]} />
+          <meshStandardMaterial color="#2E7D32" />
+        </mesh>
+      </group>
+    ));
+  };
+
   return (
     <>
-      {/* Sky and environment */}
-      <Sky sunPosition={[100, 20, 100]} />
+      {/* Sky and environment with more stable settings */}
+      <Sky distance={450000} sunPosition={[100, 20, 100]} />
       <Environment preset="sunset" />
       
       {/* Main house */}
@@ -24,17 +43,7 @@ const GameScene: React.FC = () => {
       
       {/* Ground decorations */}
       <group position={[0, 0, 5]}>
-        {/* Trees */}
-        {[[-10, -10], [10, -10], [-10, 10], [10, 10]].map((pos, i) => (
-          <mesh key={i} position={[pos[0], 1.5, pos[1]]}>
-            <cylinderGeometry args={[0.5, 0.5, 3, 8]} />
-            <meshStandardMaterial color="#5D4037" />
-            <mesh position={[0, 2, 0]}>
-              <coneGeometry args={[2, 4, 8]} />
-              <meshStandardMaterial color="#2E7D32" />
-            </mesh>
-          </mesh>
-        ))}
+        {renderTrees()}
       </group>
     </>
   );
