@@ -1,5 +1,6 @@
 
 import { Player } from '@/types/PlayerProfileTypes';
+import useGameStateStore from '../gameStateStore';
 
 export const initialPlayers: Player[] = [
   {

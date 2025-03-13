@@ -35,4 +35,9 @@ export interface AllianceState {
   rejectAlliance: (proposalId: string) => void;
 }
 
-export interface GameState extends GameProgressState, PlayersState, UIState, AllianceState {}
+export interface MiscActions {
+  setPhase: (phase: GamePhase) => void;
+  resetGame: () => void;
+}
+
+export interface GameState extends GameProgressState, PlayersState, UIState, AllianceState, MiscActions {}

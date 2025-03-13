@@ -1,6 +1,7 @@
 
 import { create } from 'zustand';
-import { GameState } from './types';
+import { StateCreator } from 'zustand';
+import { GameState, MiscActions } from './types';
 import { createGameProgressSlice } from './gameProgressSlice';
 import { createPlayersSlice } from './playersSlice';
 import { createUISlice } from './uiSlice';
@@ -8,7 +9,12 @@ import { createAllianceSlice } from './allianceSlice';
 import { GamePhase } from '@/types/gameTypes';
 
 // Additional actions that affect multiple slices
-const createMiscActions = (set: any) => ({
+const createMiscActions: StateCreator<
+  GameState,
+  [],
+  [],
+  MiscActions
+> = (set) => ({
   setPhase: (phase: GamePhase) => set((state: GameState) => ({
     currentPhase: phase,
     // If we're entering HoH competition, it's a new day
