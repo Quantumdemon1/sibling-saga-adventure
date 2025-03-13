@@ -6,10 +6,9 @@ import NominationUI from '@/components/game-ui/NominationUI';
 import WeekSidebarOverlay from '@/components/WeekSidebarOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
 
-// Import refactored component
+// Import refactored components
 import EvictionVotingUI from '@/components/ui/eviction-voting';
-// Import other UI components
-import VetoCeremonyUI from '@/components/ui/VetoCeremonyUI';
+import VetoCeremonyUI from '@/components/ui/veto-ceremony';
 import WeeklySummaryUI from '@/components/ui/WeeklySummaryUI';
 import AllianceManagementUI from '@/components/game-ui/AllianceManagementUI';
 import AllianceProposalUI from '@/components/game-ui/AllianceProposalUI';
