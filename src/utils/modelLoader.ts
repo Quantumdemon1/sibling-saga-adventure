@@ -10,34 +10,79 @@ export const usePreloadModels = () => {
   return true;
 };
 
-// Create reliable simple 3D models
+// Create reliable simple 3D models - returns a structure compatible with useGLTF
 export const useGameModel = (modelKey: ModelKey) => {
-  // Create reusable geometries and materials to prevent memory leaks
-  const geometry = getGeometryForModelType(modelKey);
-  const material = getMaterialForModelType(modelKey);
-  
-  // Ensure we have valid geometry and material
-  if (!geometry || !material) {
-    console.error(`Failed to create model for ${modelKey}`);
-    // Provide fallback simple cube
-    const fallbackGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const fallbackMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
-    const fallbackMesh = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
-    const group = new THREE.Group();
-    group.add(fallbackMesh);
-    return { scene: group, animations: [], modelKey };
-  }
-  
-  // Create a simple mesh properly
-  const mesh = new THREE.Mesh(geometry, material);
-  
-  // Add shadow capabilities
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  
-  // Return a simple group with just the mesh
+  // Create a simple group to return
   const group = new THREE.Group();
-  group.add(mesh);
+  
+  // Set up the model based on type
+  switch(modelKey) {
+    case 'house':
+      const houseMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 1.5, 2),
+        new THREE.MeshStandardMaterial({ color: 0x8888FF })
+      );
+      houseMesh.castShadow = true;
+      houseMesh.receiveShadow = true;
+      group.add(houseMesh);
+      break;
+      
+    case 'nominationBox':
+      const boxMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.8, 0.8),
+        new THREE.MeshStandardMaterial({ color: 0xFF8888 })
+      );
+      boxMesh.castShadow = true;
+      boxMesh.receiveShadow = true;
+      group.add(boxMesh);
+      break;
+      
+    case 'npc':
+      const npcMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.3, 0.3, 1.8, 8),
+        new THREE.MeshStandardMaterial({ color: 0x88FF88 })
+      );
+      npcMesh.castShadow = true;
+      npcMesh.receiveShadow = true;
+      group.add(npcMesh);
+      break;
+      
+    case 'hohChair':
+      const chairMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.6, 0.6, 1, 16),
+        new THREE.MeshStandardMaterial({ color: 0xFFFF88 })
+      );
+      // Add emission
+      chairMesh.material.emissive = new THREE.Color(0xFFFF00);
+      chairMesh.material.emissiveIntensity = 0.2;
+      chairMesh.castShadow = true;
+      chairMesh.receiveShadow = true;
+      group.add(chairMesh);
+      break;
+      
+    case 'vetoNecklace':
+      const vetoMesh = new THREE.Mesh(
+        new THREE.TorusGeometry(0.5, 0.1, 8, 16),
+        new THREE.MeshStandardMaterial({ color: 0xFF88FF })
+      );
+      // Add metallic properties
+      vetoMesh.material.metalness = 0.8;
+      vetoMesh.material.roughness = 0.2;
+      vetoMesh.castShadow = true;
+      vetoMesh.receiveShadow = true;
+      group.add(vetoMesh);
+      break;
+      
+    default:
+      // Fallback cube
+      const fallbackMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.MeshStandardMaterial({ color: 0x888888 })
+      );
+      fallbackMesh.castShadow = true;
+      fallbackMesh.receiveShadow = true;
+      group.add(fallbackMesh);
+  }
   
   return {
     scene: group,
@@ -45,57 +90,3 @@ export const useGameModel = (modelKey: ModelKey) => {
     modelKey
   };
 };
-
-// Helper functions for geometry with error handling
-function getGeometryForModelType(modelKey: ModelKey): THREE.BufferGeometry {
-  try {
-    switch(modelKey) {
-      case 'house':
-        return new THREE.BoxGeometry(2, 1.5, 2);
-      case 'nominationBox':
-        return new THREE.BoxGeometry(0.8, 0.8, 0.8);
-      case 'npc':
-        return new THREE.CylinderGeometry(0.3, 0.3, 1.8, 8);
-      case 'hohChair':
-        return new THREE.CylinderGeometry(0.6, 0.6, 1, 16);
-      case 'vetoNecklace':
-        return new THREE.TorusGeometry(0.5, 0.1, 8, 16);
-      default:
-        return new THREE.BoxGeometry(1, 1, 1);
-    }
-  } catch (error) {
-    console.error(`Error creating geometry for ${modelKey}:`, error);
-    return new THREE.BoxGeometry(1, 1, 1);
-  }
-}
-
-// Helper function for materials with error handling
-function getMaterialForModelType(modelKey: ModelKey): THREE.Material {
-  try {
-    switch(modelKey) {
-      case 'house':
-        return new THREE.MeshStandardMaterial({ color: 0x8888FF });
-      case 'nominationBox':
-        return new THREE.MeshStandardMaterial({ color: 0xFF8888 });
-      case 'npc':
-        return new THREE.MeshStandardMaterial({ color: 0x88FF88 });
-      case 'hohChair':
-        return new THREE.MeshStandardMaterial({ 
-          color: 0xFFFF88,
-          emissive: 0xFFFF00,
-          emissiveIntensity: 0.2
-        });
-      case 'vetoNecklace':
-        return new THREE.MeshStandardMaterial({ 
-          color: 0xFF88FF,
-          metalness: 0.8,
-          roughness: 0.2
-        });
-      default:
-        return new THREE.MeshStandardMaterial({ color: 0x888888 });
-    }
-  } catch (error) {
-    console.error(`Error creating material for ${modelKey}:`, error);
-    return new THREE.MeshStandardMaterial({ color: 0x888888 });
-  }
-}

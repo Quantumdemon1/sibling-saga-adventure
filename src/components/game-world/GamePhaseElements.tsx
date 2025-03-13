@@ -37,7 +37,11 @@ const GamePhaseElements: React.FC<GamePhaseElementsProps> = ({ currentPhase, set
             phase="hohCompetition"
           >
             <Box args={[1.5, 1.5, 1.5]} castShadow>
-              <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.3} />
+              <meshStandardMaterial 
+                color="#FFD700" 
+                emissive="#FFD700" 
+                emissiveIntensity={0.3} 
+              />
             </Box>
           </InteractiveObject>
         </>
@@ -54,7 +58,11 @@ const GamePhaseElements: React.FC<GamePhaseElementsProps> = ({ currentPhase, set
             phase="vetoCompetition"
           >
             <Box args={[1.5, 1.5, 1.5]} castShadow>
-              <meshStandardMaterial color="#9b87f5" emissive="#9b87f5" emissiveIntensity={0.3} />
+              <meshStandardMaterial 
+                color="#9b87f5" 
+                emissive="#9b87f5" 
+                emissiveIntensity={0.3} 
+              />
             </Box>
           </InteractiveObject>
         </>
