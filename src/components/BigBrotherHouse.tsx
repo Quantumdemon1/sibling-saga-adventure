@@ -16,16 +16,7 @@ const BigBrotherHouse: React.FC = () => {
   const houseRef = useRef<THREE.Group>(null);
   const { currentPhase } = useGameStateStore();
   
-  // Try to load the house model
-  let houseModel;
-  try {
-    houseModel = useGameModel('house');
-  } catch (e) {
-    // Model not available, will use geometry instead
-    houseModel = { scene: null };
-  }
-  
-  // Define rooms if no model is available
+  // Define rooms for geometric house representation
   const rooms: RoomData[] = [
     { 
       position: [0, 2.5, -15], 
@@ -65,19 +56,7 @@ const BigBrotherHouse: React.FC = () => {
     }
   ];
 
-  // If we have a model, use it, otherwise build from the rooms data
-  if (houseModel.scene) {
-    return (
-      <primitive
-        object={houseModel.scene.clone()}
-        ref={houseRef}
-        position={[0, 0, -15]}
-        scale={[0.1, 0.1, 0.1]}
-      />
-    );
-  }
-
-  // Get current HoH
+  // Always use the geometric version since models can cause issues
   const { hoh } = useGameStateStore();
 
   // Create house from room components

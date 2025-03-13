@@ -111,7 +111,6 @@ const ThreeComponents: React.FC = () => {
           camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 1.6, 5] }}
           gl={{ antialias: true, alpha: false }}
           onClick={handleLock}
-          // Remove any problematic properties that might cause the 'lov' error
         >
           <GameScene 
             controlsRef={controlsRef}

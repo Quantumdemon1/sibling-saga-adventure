@@ -47,7 +47,7 @@ export const useGameModel = (modelKey: ModelKey) => {
   const mesh = new THREE.Mesh(geometry, material);
   group.add(mesh);
   
-  // Return a default group with a placeholder mesh
+  // Return a mock model structure that's safe to use
   return {
     scene: group,
     animations: [],

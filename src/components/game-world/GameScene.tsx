@@ -31,6 +31,7 @@ class ElementErrorBoundary extends React.Component<{
   }
 
   componentDidCatch(error: Error) {
+    console.error(`Error in ${this.props.name}:`, error);
     this.props.onError(this.props.name, error);
   }
 
@@ -53,18 +54,21 @@ const GameScene: React.FC<GameSceneProps> = ({ controlsRef, debug }) => {
     setSceneError(`Failed to load ${componentName}: ${error.message}`);
   };
   
+  // Simple fallback scene
+  const renderFallbackScene = () => (
+    <>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={1} />
+      <mesh position={[0, 0, -5]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="hotpink" />
+      </mesh>
+    </>
+  );
+  
   // If there's an error in the scene, display a simple fallback
   if (sceneError) {
-    return (
-      <>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <mesh position={[0, 0, -5]}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="hotpink" />
-        </mesh>
-      </>
-    );
+    return renderFallbackScene();
   }
   
   return (
