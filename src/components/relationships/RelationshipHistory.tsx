@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { InteractionHistoryEvent } from '@/hooks/useRelationshipInteractions';
+import { InteractionHistoryEvent } from '@/types/relationshipTypes';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 
 interface RelationshipHistoryProps {
