@@ -19,12 +19,22 @@ const TwoDView: React.FC = () => (
   </div>
 );
 
+// Define the state type for the error boundary
+interface GameWorldErrorBoundaryState {
+  hasError: boolean;
+  errorCount: number;
+}
+
 // Simple error boundary component for the game world
 class GameWorldErrorBoundary extends React.Component<{
   children: React.ReactNode;
   onError: (error: Error) => void;
-}> {
-  state = { hasError: false, errorCount: 0 };
+}, GameWorldErrorBoundaryState> {
+  // Initialize state with proper typing
+  state: GameWorldErrorBoundaryState = {
+    hasError: false,
+    errorCount: 0
+  };
   
   static getDerivedStateFromError() {
     return { hasError: true };
