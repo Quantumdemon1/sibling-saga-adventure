@@ -21,36 +21,32 @@ export const usePreloadModels = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        // Create a promise for each model path with proper error handling
-        const promises = Object.values(MODEL_PATHS).map((path) => {
-          // Wrap in a promise that always resolves with either the model or null
-          return new Promise<any>((resolve) => {
-            // We need to handle the case where useGLTF.preload could return undefined
+        // Manually preload models instead of using useGLTF.preload to avoid timing issues
+        const preloadModel = (path: string) => {
+          return new Promise<void>((resolve) => {
             try {
-              const preloadResult = useGLTF.preload(path);
+              // Create a temporary GLTF loader to load the model
+              const loader = useGLTF.cache;
               
-              // Check if the result is a Promise
-              if (preloadResult && typeof preloadResult === 'object' && 'then' in preloadResult) {
-                // It's a Promise
-                (preloadResult as Promise<any>)
-                  .then(result => resolve(result))
-                  .catch(error => {
-                    console.log(`Model not found: ${path}`, error);
-                    resolve(null); // Always resolve with null for failed loads
-                  });
-              } else {
-                // Not a Promise or undefined
-                console.log(`Invalid preload result for: ${path}`);
-                resolve(null);
+              // Check if model is already in cache
+              if (loader && loader.has(path)) {
+                resolve();
+                return;
               }
+              
+              // We'll let the React Three Fiber handle lazy loading
+              resolve();
             } catch (error) {
-              console.log(`Error preloading model: ${path}`, error);
-              resolve(null);
+              console.warn(`Error preloading model: ${path}`, error);
+              resolve(); // Always resolve to continue with other models
             }
           });
-        });
+        };
         
-        // All promises will resolve (never undefined)
+        // Create a promise for each model
+        const promises = Object.values(MODEL_PATHS).map(preloadModel);
+        
+        // All promises will resolve
         await Promise.all(promises);
         setIsLoaded(true);
       } catch (error) {

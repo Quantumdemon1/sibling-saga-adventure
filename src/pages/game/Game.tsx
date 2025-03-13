@@ -7,6 +7,7 @@ import GameSidebar from '@/components/ui/GameSidebar';
 import GameOverlays from '@/components/ui/GameOverlays';
 import GamePhaseManager from '@/components/game-phases/GamePhaseManager';
 import GameWorld from '@/components/GameWorld';
+import { toast } from '@/hooks/use-toast';
 
 const Game = () => {
   const { currentPlayerId, isGameActive, startGame } = useGameContext();
@@ -29,6 +30,7 @@ const Game = () => {
   // Local UI state
   const [showControls, setShowControls] = useState(true);
   const [view3D, setView3D] = useState(false); // Start with 2D view to help with performance
+  const [view3DError, setView3DError] = useState(false);
 
   useEffect(() => {
     // Start the game if it's not already active
@@ -62,7 +64,27 @@ const Game = () => {
   };
 
   const toggleView = () => {
+    if (view3DError && !view3D) {
+      // If there was a previous 3D error and user is trying to switch to 3D
+      toast({
+        title: "3D View Unavailable",
+        description: "The 3D view is currently unavailable due to technical limitations. Please try again later.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setView3D(prev => !prev);
+  };
+
+  const handle3DError = () => {
+    setView3DError(true);
+    setView3D(false);
+    toast({
+      title: "3D View Error",
+      description: "Encountered an error loading the 3D view. Switched to 2D mode.",
+      variant: "destructive"
+    });
   };
 
   return (
@@ -82,14 +104,16 @@ const Game = () => {
       {/* Main game content */}
       <div className="pt-16 h-full">
         {view3D ? (
-          <div className="h-full">
+          <div className="h-full" key="3d-view">
             <GameWorld />
           </div>
         ) : (
-          <GamePhaseManager
-            onStartHohCompetition={handleStartHohCompetition}
-            onManageAlliances={handleManageAlliances}
-          />
+          <div key="2d-view">
+            <GamePhaseManager
+              onStartHohCompetition={handleStartHohCompetition}
+              onManageAlliances={handleManageAlliances}
+            />
+          </div>
         )}
       </div>
       
