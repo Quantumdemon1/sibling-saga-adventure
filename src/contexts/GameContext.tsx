@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect, useRef } from 'react';
 import useGameStateStore from '@/stores/gameStateStore';
 import { Player } from '@/types/PlayerProfileTypes';
 import { Alliance, AllianceProposal } from '@/types/gameTypes';
@@ -20,6 +20,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { players, alliances, allianceProposals, setPhase } = useGameStateStore();
   const [isGameActive, setIsGameActive] = useState(false);
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
+  const gameInitialized = useRef(false);
 
   // Set the player ID only once when the game starts
   useEffect(() => {
@@ -33,7 +34,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Only set the phase once when the game becomes active
   useEffect(() => {
-    if (isGameActive) {
+    if (isGameActive && !gameInitialized.current) {
+      gameInitialized.current = true;
       setPhase('idle');
     }
   }, [isGameActive, setPhase]);
@@ -46,6 +48,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const endGame = () => {
     setIsGameActive(false);
     setCurrentPlayerId(null);
+    gameInitialized.current = false;
   };
 
   return (

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useGameContext } from '@/contexts/GameContext';
 import useGameStateStore, { useInitialPlayers } from '@/stores/gameStateStore';
 import GameHeader from '@/components/ui/GameHeader';
 import GameSidebar from '@/components/ui/GameSidebar';
 import GameOverlays from '@/components/ui/GameOverlays';
 import GamePhaseManager from '@/components/game-phases/GamePhaseManager';
-import GameWorld from '@/components/GameWorld';
+import GameContent from '@/components/ui/GameContent';
 import { toast } from '@/hooks/use-toast';
 
 const Game = () => {
@@ -31,14 +31,17 @@ const Game = () => {
   const [view3D, setView3D] = useState(false); // Always start with 2D view for reliability
   const [view3DError, setView3DError] = useState(false);
   const [isGameReady, setIsGameReady] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false); // Add this to prevent multiple calls
+  const gameStartAttempted = useRef(false);
 
   useEffect(() => {
-    // Only start the game once to prevent infinite loop
-    if (!isGameActive && !gameStarted) {
+    // Only attempt to start the game once
+    if (!isGameActive && !gameStartAttempted.current) {
       console.log("Starting game");
-      setGameStarted(true);
-      startGame();
+      gameStartAttempted.current = true;
+      // Use a slight delay to avoid state update conflicts
+      setTimeout(() => {
+        startGame();
+      }, 0);
     }
 
     // Mark the game as ready once we're in idle phase
@@ -49,7 +52,7 @@ const Game = () => {
       // Handle any other phase
       setIsGameReady(true);
     }
-  }, [isGameActive, currentPhase, startGame, gameStarted]);
+  }, [isGameActive, currentPhase, startGame]);
   
   const handlePhaseChange = (phase: string) => {
     setPhase(phase as any);
@@ -70,36 +73,14 @@ const Game = () => {
   };
 
   const toggleView = () => {
-    if (view3DError && !view3D) {
-      // If there was a previous 3D error and user is trying to switch to 3D
-      toast({
-        title: "3D View Unavailable",
-        description: "The 3D view is currently unavailable. Please use the 2D view.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Toggle between 2D and 3D views
-    setView3D(prev => !prev);
-    
-    // When switching to 3D, show a toast message
-    if (!view3D) {
-      toast({
-        title: "Loading 3D View",
-        description: "If the 3D view doesn't load properly, you can switch back to 2D view."
-      });
-    }
-  };
-
-  const handle3DError = () => {
-    setView3DError(true);
-    setView3D(false);
+    // 3D view is disabled in this version for stability
     toast({
-      title: "3D View Error",
-      description: "Encountered an error loading the 3D view. Using 2D mode instead.",
+      title: "3D View Unavailable",
+      description: "The 3D view is currently disabled for stability. All features are available in 2D mode.",
       variant: "destructive"
     });
+    // Keep view in 2D mode
+    setView3D(false);
   };
 
   // If game isn't ready yet, show loading screen
@@ -125,34 +106,17 @@ const Game = () => {
           dayCount={dayCount}
           currentPhase={currentPhase}
           onShowWeekSidebar={handleShowWeekSidebar}
-          is3DActive={view3D}
+          is3DActive={false} // Always false in this version for stability
           onToggleView={toggleView}
         />
       </div>
 
       {/* Main game content */}
       <div className="pt-16 h-full">
-        {view3D ? (
-          <div className="h-full" key="3d-view">
-            <React.Suspense fallback={
-              <div className="h-full flex items-center justify-center bg-slate-900">
-                <div className="text-white text-center">
-                  <h2 className="text-xl mb-4">Loading 3D View...</h2>
-                  <div className="animate-spin w-10 h-10 border-4 border-purple-500 rounded-full border-t-transparent"></div>
-                </div>
-              </div>
-            }>
-              <GameWorld />
-            </React.Suspense>
-          </div>
-        ) : (
-          <div key="2d-view">
-            <GamePhaseManager
-              onStartHohCompetition={handleStartHohCompetition}
-              onManageAlliances={handleManageAlliances}
-            />
-          </div>
-        )}
+        <GamePhaseManager
+          onStartHohCompetition={handleStartHohCompetition}
+          onManageAlliances={handleManageAlliances}
+        />
       </div>
       
       {/* Game status sidebar */}
