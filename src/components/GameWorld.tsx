@@ -9,7 +9,71 @@ import House from './House';
 import NominationBox from './NominationBox';
 import SceneLights from './SceneLights';
 import InteractiveObject from './InteractiveObject';
+import StatusIndicators from './StatusIndicators';
 import { Box } from '@react-three/drei';
+
+interface LoadingScreenProps {
+  progress?: number;
+}
+
+// Simple loading screen component
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ progress = 0 }) => {
+  return (
+    <Box args={[1, 1, 1]} position={[0, 0, 0]}>
+      <meshStandardMaterial color="#8B5CF6" />
+    </Box>
+  );
+};
+
+// Ground component
+const Ground: React.FC<{ size: [number, number] }> = ({ size }) => {
+  return (
+    <Box 
+      args={[size[0], 0.2, size[1]]} 
+      position={[0, -0.1, 0]} 
+      receiveShadow
+    >
+      <meshStandardMaterial color="#8FB275" />
+    </Box>
+  );
+};
+
+// HoH Competition Area
+const HohCompetitionArea: React.FC<{ position: [number, number, number] }> = ({ position }) => {
+  return (
+    <group position={position}>
+      {/* Platform */}
+      <Box 
+        args={[10, 0.5, 10]} 
+        position={[0, 0, 0]} 
+        receiveShadow
+      >
+        <meshStandardMaterial color="#8B5CF6" />
+      </Box>
+      
+      {/* Competition elements */}
+      <Box 
+        args={[1.5, 1.5, 1.5]} 
+        position={[0, 1.5, 0]} 
+        castShadow
+      >
+        <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.2} />
+      </Box>
+      
+      {/* Decorative pillars */}
+      {[[-4, 0, -4], [4, 0, -4], [-4, 0, 4], [4, 0, 4]].map((pillarPos, i) => (
+        <Box 
+          key={i}
+          args={[0.8, 3, 0.8]} 
+          position={[pillarPos[0], 1.5, pillarPos[2]]} 
+          castShadow
+        >
+          <meshStandardMaterial color="#0EA5E9" />
+        </Box>
+      ))}
+    </group>
+  );
+};
 
 const GameWorld: React.FC = () => {
   const { currentPhase, setOverlay } = useGameStateStore();
@@ -58,46 +122,90 @@ const GameWorld: React.FC = () => {
         <Sky sunPosition={[100, 10, 100]} />
         <SceneLights />
         
-        <Suspense fallback={null}>
-          {/* Floor */}
-          <Box 
-            args={[100, 0.2, 100]} 
-            position={[0, -0.1, 0]} 
-            receiveShadow
-          >
-            <meshStandardMaterial color="#8FB275" />
-          </Box>
+        <Suspense fallback={<LoadingScreen />}>
+          {/* Ground */}
+          <Ground size={[100, 100]} />
           
           {/* Main House */}
           <House />
           
-          {/* Nomination Box - Interactive object for ceremony */}
-          <InteractiveObject
-            position={[4, 1, -8]}
-            onInteract={() => {
-              if (currentPhase === 'nominationCeremony') {
-                setOverlay({ type: 'nomination' });
-              }
-            }}
-            phase="nominationCeremony"
-          >
-            <NominationBox />
-          </InteractiveObject>
+          {/* Status indicators in 3D space */}
+          <StatusIndicators />
           
-          {/* HoH Competition Area */}
-          <InteractiveObject
-            position={[-4, 1, -8]}
-            onInteract={() => {
-              if (currentPhase === 'hohCompetition') {
-                setOverlay({ type: 'hoh' });
-              }
-            }}
-            phase="hohCompetition"
-          >
-            <Box args={[1.5, 1.5, 1.5]} castShadow>
-              <meshStandardMaterial color="#FFD700" />
-            </Box>
-          </InteractiveObject>
+          {/* Phase-specific elements */}
+          {currentPhase === 'nominationCeremony' && (
+            <InteractiveObject
+              position={[4, 1, -8]}
+              onInteract={() => {
+                setOverlay({ type: 'nomination' });
+              }}
+              phase="nominationCeremony"
+            >
+              <NominationBox />
+            </InteractiveObject>
+          )}
+          
+          {currentPhase === 'hohCompetition' && (
+            <>
+              <HohCompetitionArea position={[0, 0, -20]} />
+              <InteractiveObject
+                position={[0, 1, -20]}
+                onInteract={() => {
+                  setOverlay({ type: 'hoh' });
+                }}
+                phase="hohCompetition"
+              >
+                <Box args={[1.5, 1.5, 1.5]} castShadow>
+                  <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={0.3} />
+                </Box>
+              </InteractiveObject>
+            </>
+          )}
+          
+          {currentPhase === 'vetoCompetition' && (
+            <>
+              <HohCompetitionArea position={[0, 0, -20]} />
+              <InteractiveObject
+                position={[0, 1, -20]}
+                onInteract={() => {
+                  setOverlay({ type: 'veto' });
+                }}
+                phase="vetoCompetition"
+              >
+                <Box args={[1.5, 1.5, 1.5]} castShadow>
+                  <meshStandardMaterial color="#9b87f5" emissive="#9b87f5" emissiveIntensity={0.3} />
+                </Box>
+              </InteractiveObject>
+            </>
+          )}
+          
+          {currentPhase === 'vetoCeremony' && (
+            <InteractiveObject
+              position={[-4, 1, -8]}
+              onInteract={() => {
+                setOverlay({ type: 'veto' });
+              }}
+              phase="vetoCeremony"
+            >
+              <Box args={[1.5, 1.5, 1.5]} castShadow>
+                <meshStandardMaterial color="#9b87f5" />
+              </Box>
+            </InteractiveObject>
+          )}
+          
+          {currentPhase === 'evictionVoting' && (
+            <InteractiveObject
+              position={[0, 1, -10]}
+              onInteract={() => {
+                setOverlay({ type: 'eviction' });
+              }}
+              phase="evictionVoting"
+            >
+              <Box args={[2, 2, 0.5]} castShadow>
+                <meshStandardMaterial color="#ea384c" />
+              </Box>
+            </InteractiveObject>
+          )}
           
           {/* NPCs */}
           <NPC

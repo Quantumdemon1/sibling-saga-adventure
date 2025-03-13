@@ -1,8 +1,8 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useKeyboardControls } from '@react-three/drei';
+import useGameStateStore from '@/stores/gameStateStore';
 
 interface PlayerProps {
   controls: React.RefObject<any>;
@@ -27,7 +27,7 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
   }, []);
   
   // Handle player movement
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (!playerRef.current) return;
     
     // Get current keystate
@@ -99,6 +99,35 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     
     // Move player based on velocity
     playerRef.current.position.add(velocityRef.current);
+    
+    // Get current game phase for phase-specific restrictions
+    const { currentPhase } = useGameStateStore.getState();
+    
+    // Add phase-specific movement restrictions
+    if (currentPhase === 'hohCompetition' || currentPhase === 'vetoCompetition') {
+      // Restrict movement to competition area
+      const competitionCenter = new THREE.Vector3(0, 0, -10);
+      if (playerRef.current.position.distanceTo(competitionCenter) > 15) {
+        // Move back toward competition area
+        const toCenter = competitionCenter.sub(playerRef.current.position).normalize();
+        playerRef.current.position.add(toCenter.multiplyScalar(0.1));
+      }
+    } else if (currentPhase === 'nominationCeremony') {
+      // Keep players closer to nomination area
+      const nominationCenter = new THREE.Vector3(4, 0, -8);
+      if (playerRef.current.position.distanceTo(nominationCenter) > 12) {
+        const toNomination = nominationCenter.sub(playerRef.current.position).normalize();
+        playerRef.current.position.add(toNomination.multiplyScalar(0.08));
+      }
+    }
+    
+    // Boundary limits - prevent player from going too far from house
+    const maxDistance = 40;
+    const origin = new THREE.Vector3(0, 0, 0);
+    if (playerRef.current.position.distanceTo(origin) > maxDistance) {
+      const toOrigin = origin.sub(playerRef.current.position).normalize();
+      playerRef.current.position.add(toOrigin.multiplyScalar(0.2));
+    }
     
     // Update camera position to follow player
     state.camera.position.copy(playerRef.current.position.clone().add(new THREE.Vector3(0, 1.6, 0)));
