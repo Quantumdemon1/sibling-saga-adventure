@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Player } from '@/types/PlayerProfileTypes';
-import { getRelationshipBetweenPlayers, getRelationshipVisuals, getRelationshipScore } from '@/utils/relationshipUtils';
+import { getRelationshipBetweenPlayers, getRelationshipVisuals } from '@/utils/relationshipUtils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,9 @@ import RelationshipIndicator from './RelationshipIndicator';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { InteractionAction, useRelationshipInteractions } from '@/hooks/useRelationshipInteractions';
 
-interface PlayerRelationshipsProps {
-  selectedPlayer: Player | null;
-  humanPlayer: Player | undefined;
-  players: Player[];
-  onRelationshipChange: (playerId: string, points: number) => void;
-}
-
-const RELATIONSHIP_ACTIONS = [
+const RELATIONSHIP_ACTIONS: InteractionAction[] = [
   { id: 'smalltalk', name: 'Small Talk', icon: <MessageSquare />, points: 5, description: 'A casual conversation' },
   { id: 'compliment', name: 'Compliment', icon: <Smile />, points: 10, description: 'Say something nice' },
   { id: 'gift', name: 'Give a Gift', icon: <Gift />, points: 15, description: 'Share something they might like' },
@@ -52,20 +45,30 @@ const RelationshipHistory = ({ events }: { events: {date: string, action: string
   );
 };
 
+interface PlayerRelationshipsProps {
+  selectedPlayer: Player | null;
+  humanPlayer: Player | undefined;
+  players: Player[];
+  onRelationshipChange: (playerId: string, points: number) => void;
+}
+
 const PlayerRelationships: React.FC<PlayerRelationshipsProps> = ({
   selectedPlayer,
   humanPlayer,
   players,
   onRelationshipChange
 }) => {
-  // For demo purposes, we'll simulate a history of interactions
-  const [customPoints, setCustomPoints] = useState<number[]>([0]);
-  const [selectedAction, setSelectedAction] = useState("");
-  const [relationshipHistory] = useState<{date: string, action: string, points: number}[]>([
-    { date: "Day 5", action: "Had a deep conversation", points: 15 },
-    { date: "Day 3", action: "Shared game strategy", points: 10 },
-    { date: "Day 2", action: "Disagreement about chores", points: -5 },
-  ]);
+  const {
+    selectedAction,
+    customPoints,
+    interactionHistory,
+    relationship,
+    relationshipScore,
+    handleActionSelect,
+    handleCustomInteraction,
+    setCustomPoints,
+    getRelationshipDescription
+  } = useRelationshipInteractions(selectedPlayer, humanPlayer, onRelationshipChange);
 
   if (!selectedPlayer) {
     return (
@@ -77,25 +80,6 @@ const PlayerRelationships: React.FC<PlayerRelationshipsProps> = ({
       </Card>
     );
   }
-
-  const relationship = humanPlayer ? getRelationshipBetweenPlayers(humanPlayer, selectedPlayer) : null;
-  const score = relationship ? getRelationshipScore(relationship) : 0;
-  
-  const handleActionSelect = (actionId: string) => {
-    setSelectedAction(actionId);
-    const action = RELATIONSHIP_ACTIONS.find(a => a.id === actionId);
-    if (action && selectedPlayer) {
-      onRelationshipChange(selectedPlayer.id, action.points);
-      // In a real implementation, you would add to history here
-    }
-  };
-
-  const handleCustomInteraction = () => {
-    if (selectedPlayer && customPoints[0] !== 0) {
-      onRelationshipChange(selectedPlayer.id, customPoints[0]);
-      setCustomPoints([0]);
-    }
-  };
 
   return (
     <Card>
@@ -121,26 +105,22 @@ const PlayerRelationships: React.FC<PlayerRelationshipsProps> = ({
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
                 <div 
-                  className={`h-2.5 rounded-full ${score > 70 ? 'bg-green-500' : score > 40 ? 'bg-blue-500' : score > 20 ? 'bg-yellow-500' : 'bg-red-500'}`} 
-                  style={{ width: `${score}%` }}
+                  className={`h-2.5 rounded-full ${relationshipScore > 70 ? 'bg-green-500' : relationshipScore > 40 ? 'bg-blue-500' : relationshipScore > 20 ? 'bg-yellow-500' : 'bg-red-500'}`} 
+                  style={{ width: `${relationshipScore}%` }}
                 ></div>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                {score > 80 ? 'Strong alliance - they trust you completely!' : 
-                 score > 60 ? 'Good friends - they see you as an ally.' :
-                 score > 40 ? 'Friendly - they generally like you.' :
-                 score > 20 ? 'Neutral - they have no strong feelings.' :
-                 'Hostile - they may target you!'}
+                {getRelationshipDescription(relationshipScore)}
               </p>
             </div>
             
             <Collapsible className="w-full mb-6">
               <CollapsibleTrigger className="flex items-center justify-between w-full py-2 px-4 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
                 <span className="font-medium">Interaction History</span>
-                <span className="text-xs text-gray-500">{relationshipHistory.length} interactions</span>
+                <span className="text-xs text-gray-500">{interactionHistory.length} interactions</span>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-2 pb-4 px-4 mt-2 border rounded-md">
-                <RelationshipHistory events={relationshipHistory} />
+                <RelationshipHistory events={interactionHistory} />
               </CollapsibleContent>
             </Collapsible>
             
@@ -151,7 +131,7 @@ const PlayerRelationships: React.FC<PlayerRelationshipsProps> = ({
                 {RELATIONSHIP_ACTIONS.map(action => (
                   <Button 
                     key={action.id}
-                    onClick={() => handleActionSelect(action.id)}
+                    onClick={() => handleActionSelect(action.id, RELATIONSHIP_ACTIONS)}
                     variant={action.points > 0 ? "default" : "destructive"}
                     size="sm"
                     className={`justify-start ${selectedAction === action.id ? 'ring-2 ring-offset-2' : ''}`}
