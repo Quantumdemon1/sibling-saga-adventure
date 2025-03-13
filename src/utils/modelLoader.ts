@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
 
 // Define model paths - using placeholder paths for development
 const MODEL_PATHS = {
@@ -21,20 +22,15 @@ export const usePreloadModels = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        // Manually preload models instead of using useGLTF.preload to avoid timing issues
+        // Manually preload models
         const preloadModel = (path: string) => {
           return new Promise<void>((resolve) => {
             try {
-              // Create a temporary GLTF loader to load the model
-              const loader = useGLTF.cache;
+              // Instead of using the cache property which doesn't exist in the type definitions,
+              // we'll use the preload method, which is the official way to preload models
+              useGLTF.preload(path);
               
-              // Check if model is already in cache
-              if (loader && loader.has(path)) {
-                resolve();
-                return;
-              }
-              
-              // We'll let the React Three Fiber handle lazy loading
+              // Always resolve since we're just preloading
               resolve();
             } catch (error) {
               console.warn(`Error preloading model: ${path}`, error);
