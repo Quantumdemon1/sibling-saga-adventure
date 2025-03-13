@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,5 +98,130 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+@layer components {
+  .game-container {
+    @apply w-full h-screen overflow-hidden bg-game-bg text-game-primary;
+  }
+  
+  .glass-panel {
+    @apply bg-game-glass backdrop-blur-md border border-game-glass-border rounded-2xl shadow-glass;
+  }
+  
+  .game-button {
+    @apply px-6 py-2.5 bg-game-accent text-white rounded-full font-medium 
+           transition-all duration-300 hover:bg-game-accent-hover hover:shadow-game-button
+           focus:outline-none focus:ring-2 focus:ring-game-accent focus:ring-opacity-50;
+  }
+  
+  .game-button-secondary {
+    @apply px-6 py-2.5 bg-game-surface text-game-primary rounded-full font-medium
+           transition-all duration-300 hover:bg-game-surface-hover
+           focus:outline-none focus:ring-2 focus:ring-game-primary focus:ring-opacity-50;
+  }
+  
+  .game-button-destructive {
+    @apply px-6 py-2.5 bg-game-destructive text-white rounded-full font-medium
+           transition-all duration-300 hover:opacity-90
+           focus:outline-none focus:ring-2 focus:ring-game-destructive focus:ring-opacity-50;
+  }
+  
+  .game-chip {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .game-input {
+    @apply w-full px-4 py-3 bg-game-surface border border-game-glass-border rounded-lg
+           text-game-primary focus:outline-none focus:ring-2 focus:ring-game-accent;
+  }
+  
+  .game-card {
+    @apply glass-panel p-6 transition-all duration-300 hover:shadow-game-card;
+  }
+  
+  .game-text-title {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  
+  .game-text-subtitle {
+    @apply text-lg font-medium text-game-secondary;
+  }
+  
+  .game-text-body {
+    @apply text-base text-game-primary;
+  }
+  
+  .game-text-caption {
+    @apply text-sm text-game-secondary;
+  }
+
+  /* Dialog animations */
+  .dialog-animation-enter {
+    animation: scale-in 0.3s ease-out forwards;
+  }
+  
+  .dialog-animation-exit {
+    animation: fade-out 0.2s ease-in forwards;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Custom font loading */
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-regular-webfont.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-medium-webfont.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-semibold-webfont.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-bold-webfont.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Apply SF Pro font to everything */
+html, body {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
 }

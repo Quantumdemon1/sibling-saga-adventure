@@ -1,0 +1,288 @@
+
+{
+  "npc1": {
+    "initial": {
+      "text": "Hey there, how's it going in the house?",
+      "options": [
+        {
+          "text": "Pretty good, just trying to figure out the game.",
+          "next": "game_advice"
+        },
+        {
+          "text": "I'm worried about nominations. Any advice?",
+          "next": "nomination_advice"
+        },
+        {
+          "text": "Want to form an alliance?",
+          "next": "alliance_proposal"
+        },
+        {
+          "text": "Just checking in. See you around!",
+          "next": undefined
+        }
+      ]
+    },
+    "game_advice": {
+      "text": "This game is all about social strategy. Build relationships, but don't make yourself too much of a threat. Stay under the radar early, then make your big moves when the numbers thin out.",
+      "options": [
+        {
+          "text": "That makes sense. Any specific strategies you recommend?",
+          "next": "specific_strategy"
+        },
+        {
+          "text": "Thanks for the advice. I'll keep that in mind.",
+          "next": undefined
+        }
+      ]
+    },
+    "specific_strategy": {
+      "text": "I've found that forming small, loyal alliances works better than large ones. Also, winning competitions is important, but sometimes it's better to throw them if winning would put a target on your back.",
+      "options": [
+        {
+          "text": "Good point. I'll be careful about when to win.",
+          "next": undefined
+        }
+      ]
+    },
+    "nomination_advice": {
+      "text": "If you're worried about nominations, your best bet is to build a relationship with the HoH. Show them you're valuable to their game, or at least not a threat.",
+      "options": [
+        {
+          "text": "And if I become HoH, who should I nominate?",
+          "next": "hoh_advice"
+        },
+        {
+          "text": "Thanks, that helps.",
+          "next": undefined
+        }
+      ]
+    },
+    "hoh_advice": {
+      "text": "As HoH, you want to nominate people who aren't in your alliance and who won't come after you if they stay. It's a balancing act between making a move and not creating too many enemies.",
+      "options": [
+        {
+          "text": "I'll remember that when I win HoH.",
+          "next": undefined
+        }
+      ]
+    },
+    "alliance_proposal": {
+      "text": "An alliance? Hmm, I'm interested. We could work well together. What would you call it?",
+      "options": [
+        {
+          "text": "The Silent Strategy",
+          "next": "alliance_accept_silent"
+        },
+        {
+          "text": "Power Players",
+          "next": "alliance_accept_power"
+        },
+        {
+          "text": "Actually, let me think about this more first.",
+          "next": "alliance_decline"
+        }
+      ]
+    },
+    "alliance_accept_silent": {
+      "text": "The Silent Strategy. I like it. Subtle but effective. Alright, you've got yourself a deal. Let's keep this between us and see how far we can go.",
+      "options": [
+        {
+          "text": "Great! Let's dominate this game.",
+          "next": undefined,
+          "effect": {
+            "type": "createAlliance",
+            "value": {
+              "name": "The Silent Strategy",
+              "members": ["npc1"]
+            }
+          }
+        }
+      ]
+    },
+    "alliance_accept_power": {
+      "text": "Power Players. Bold name, might put a target on our backs, but I'm in. Let's show them who's running this house.",
+      "options": [
+        {
+          "text": "Perfect! We'll control this game.",
+          "next": undefined,
+          "effect": {
+            "type": "createAlliance",
+            "value": {
+              "name": "Power Players",
+              "members": ["npc1"]
+            }
+          }
+        }
+      ]
+    },
+    "alliance_decline": {
+      "text": "No rush. It's smart to consider your options carefully in this game. Let me know if you change your mind.",
+      "options": [
+        {
+          "text": "I will, thanks.",
+          "next": undefined
+        }
+      ]
+    }
+  },
+  "npc2": {
+    "initial": {
+      "text": "Hi there! This house is pretty intense, isn't it?",
+      "options": [
+        {
+          "text": "Very intense. How are you handling it?",
+          "next": "handling_house"
+        },
+        {
+          "text": "Who do you think is the biggest threat?",
+          "next": "biggest_threat"
+        },
+        {
+          "text": "Want to work together?",
+          "next": "work_together"
+        },
+        {
+          "text": "Just saying hi. Talk later!",
+          "next": undefined
+        }
+      ]
+    },
+    "handling_house": {
+      "text": "I'm trying to stay calm and observe everyone. People reveal a lot when they think no one is watching. I've noticed some interesting dynamics forming already.",
+      "options": [
+        {
+          "text": "What have you noticed?",
+          "next": "house_dynamics"
+        },
+        {
+          "text": "That's smart. I should pay more attention.",
+          "next": undefined
+        }
+      ]
+    },
+    "house_dynamics": {
+      "text": "Well, I've seen a few people having secret conversations in the storage room. And it seems like there's already a divide forming between the competition beasts and the social players.",
+      "options": [
+        {
+          "text": "Interesting. Let's keep an eye on that.",
+          "next": undefined
+        }
+      ]
+    },
+    "biggest_threat": {
+      "text": "If I had to guess, I'd say NPC1 is someone to watch out for. They're building relationships with everyone and seem to be playing all sides. Classic under-the-radar strategy.",
+      "options": [
+        {
+          "text": "Good to know. I'll keep that in mind.",
+          "next": undefined
+        },
+        {
+          "text": "What about you? What's your strategy?",
+          "next": "own_strategy"
+        }
+      ]
+    },
+    "own_strategy": {
+      "text": "Me? I'm focusing on competitions. If I can win power, I control my own fate. But I'm also building selective relationships. It's all about balance in this game.",
+      "options": [
+        {
+          "text": "Smart approach. Best of luck.",
+          "next": undefined
+        }
+      ]
+    },
+    "work_together": {
+      "text": "Work together? I'm open to it. What did you have in mind?",
+      "options": [
+        {
+          "text": "A solid two-person alliance. We watch each other's backs.",
+          "next": "two_person_alliance"
+        },
+        {
+          "text": "Maybe we can form a larger alliance with some others?",
+          "next": "larger_alliance"
+        },
+        {
+          "text": "Actually, let me think about this more.",
+          "next": "rethink_alliance"
+        }
+      ]
+    },
+    "two_person_alliance": {
+      "text": "A final two deal? I like it. Simple and clear. Let's do it, but we'll need to be careful. We should still socialize with others so we don't look too obvious.",
+      "options": [
+        {
+          "text": "Agreed. Our secret stays between us.",
+          "next": undefined,
+          "effect": {
+            "type": "createAlliance",
+            "value": {
+              "name": "Final Two",
+              "members": ["npc2"],
+              "isSecret": true
+            }
+          }
+        }
+      ]
+    },
+    "larger_alliance": {
+      "text": "Who were you thinking of including? We need to be careful about who we trust.",
+      "options": [
+        {
+          "text": "Maybe NPC1? They seem strategic.",
+          "next": "include_npc1"
+        },
+        {
+          "text": "Let's start with just us and see who else might be trustworthy.",
+          "next": "start_small"
+        }
+      ]
+    },
+    "include_npc1": {
+      "text": "NPC1? Hmm, they're playing a good game, but I'm not sure I trust them completely. Still, it could be good to have them with us rather than against us.",
+      "options": [
+        {
+          "text": "Let's approach them and see.",
+          "next": undefined,
+          "effect": {
+            "type": "createAlliance",
+            "value": {
+              "name": "Strategic Trio",
+              "members": ["npc2"],
+              "potentialMembers": ["npc1"]
+            }
+          }
+        },
+        {
+          "text": "You're right, maybe we should rethink this.",
+          "next": "rethink_alliance"
+        }
+      ]
+    },
+    "start_small": {
+      "text": "I like that approach. Let's build a foundation first and then carefully expand if needed. We can call ourselves 'The Foundation'.",
+      "options": [
+        {
+          "text": "Perfect. To a long and successful alliance.",
+          "next": undefined,
+          "effect": {
+            "type": "createAlliance",
+            "value": {
+              "name": "The Foundation",
+              "members": ["npc2"]
+            }
+          }
+        }
+      ]
+    },
+    "rethink_alliance": {
+      "text": "No problem. Alliances are serious business in this house. Take your time and think it through. My door is always open.",
+      "options": [
+        {
+          "text": "Thanks for understanding.",
+          "next": undefined
+        }
+      ]
+    }
+  }
+}
