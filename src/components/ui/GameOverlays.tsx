@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { OverlayType } from '@/types/gameTypes';
 import DialogueUI from '@/components/ui/DialogueUI';
@@ -7,9 +6,10 @@ import NominationUI from '@/components/game-ui/NominationUI';
 import WeekSidebarOverlay from '@/components/WeekSidebarOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
 
-// The modules that were not found need to be created
+// Import refactored component
+import EvictionVotingUI from '@/components/ui/eviction-voting';
+// Import other UI components
 import VetoCeremonyUI from '@/components/ui/VetoCeremonyUI';
-import EvictionVotingUI from '@/components/ui/EvictionVotingUI';
 import WeeklySummaryUI from '@/components/ui/WeeklySummaryUI';
 import AllianceManagementUI from '@/components/game-ui/AllianceManagementUI';
 import AllianceProposalUI from '@/components/game-ui/AllianceProposalUI';
