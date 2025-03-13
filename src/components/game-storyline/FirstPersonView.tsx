@@ -7,8 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { User, Trophy, Shield, Clock, Home, AlertTriangle, Users } from 'lucide-react';
-import RelationshipIndicator from '@/components/relationships/RelationshipIndicator';
-import { getRelationshipScore } from '@/utils/relationshipUtils';
 
 interface FirstPersonViewProps {
   currentPlayerId: string | null;
@@ -141,37 +139,6 @@ const FirstPersonView: React.FC<FirstPersonViewProps> = ({ currentPlayerId }) =>
               ) : (
                 <div className="text-center py-3 text-gray-500 text-sm">
                   No alliances formed yet
-                </div>
-              )}
-            </div>
-            
-            <Separator className="my-3 bg-gray-800" />
-            
-            <div>
-              <h3 className="text-sm font-medium text-gray-300 mb-2">Key Relationships</h3>
-              {currentPlayer.relationships && Object.keys(currentPlayer.relationships).length > 0 ? (
-                <div className="space-y-2">
-                  {Object.entries(currentPlayer.relationships)
-                    .sort((a, b) => getRelationshipScore(b[1]) - getRelationshipScore(a[1]))
-                    .slice(0, 3)
-                    .map(([playerId, relationship]) => {
-                      const relatedPlayer = players.find(p => p.id === playerId);
-                      if (!relatedPlayer) return null;
-                      
-                      return (
-                        <div key={playerId} className="px-3 py-2 bg-gray-800/50 rounded-md flex justify-between items-center">
-                          <span>{relatedPlayer.name}</span>
-                          <RelationshipIndicator 
-                            relationship={relationship} 
-                            size="sm"
-                          />
-                        </div>
-                      );
-                    })}
-                </div>
-              ) : (
-                <div className="text-center py-3 text-gray-500 text-sm">
-                  No significant relationships yet
                 </div>
               )}
             </div>

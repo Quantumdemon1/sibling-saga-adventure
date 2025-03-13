@@ -30,7 +30,7 @@ const HohCompetitionViz: React.FC = () => {
       
       {/* Competition podiums */}
       {players
-        .filter(p => p.status !== 'evicted')
+        .filter(p => p.status === 'active')
         .map((player, i) => {
           const angle = (i / players.length) * Math.PI * 2;
           const x = Math.cos(angle) * 5;
