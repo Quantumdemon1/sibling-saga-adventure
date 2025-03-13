@@ -29,7 +29,7 @@ const Game = () => {
   
   // Local UI state
   const [showControls, setShowControls] = useState(true);
-  const [view3D, setView3D] = useState(false); // Start with 2D view for reliability
+  const [view3D, setView3D] = useState(false); // Always start with 2D view for reliability
   const [view3DError, setView3DError] = useState(false);
   const [isGameReady, setIsGameReady] = useState(false);
 
@@ -72,13 +72,22 @@ const Game = () => {
       // If there was a previous 3D error and user is trying to switch to 3D
       toast({
         title: "3D View Unavailable",
-        description: "The 3D view is currently unavailable due to technical limitations. Please try again later.",
+        description: "The 3D view is currently unavailable. Please use the 2D view.",
         variant: "destructive"
       });
       return;
     }
     
+    // Toggle between 2D and 3D views
     setView3D(prev => !prev);
+    
+    // When switching to 3D, show a toast message
+    if (!view3D) {
+      toast({
+        title: "Loading 3D View",
+        description: "If the 3D view doesn't load properly, you can switch back to 2D view."
+      });
+    }
   };
 
   const handle3DError = () => {
@@ -86,7 +95,7 @@ const Game = () => {
     setView3D(false);
     toast({
       title: "3D View Error",
-      description: "Encountered an error loading the 3D view. Switched to 2D mode.",
+      description: "Encountered an error loading the 3D view. Using 2D mode instead.",
       variant: "destructive"
     });
   };
@@ -123,7 +132,16 @@ const Game = () => {
       <div className="pt-16 h-full">
         {view3D ? (
           <div className="h-full" key="3d-view">
-            <GameWorld />
+            <React.Suspense fallback={
+              <div className="h-full flex items-center justify-center bg-slate-900">
+                <div className="text-white text-center">
+                  <h2 className="text-xl mb-4">Loading 3D View...</h2>
+                  <div className="animate-spin w-10 h-10 border-4 border-purple-500 rounded-full border-t-transparent"></div>
+                </div>
+              </div>
+            }>
+              <GameWorld />
+            </React.Suspense>
           </div>
         ) : (
           <div key="2d-view">
