@@ -4,22 +4,19 @@ import * as THREE from 'three';
 // Define model keys
 export type ModelKey = 'house' | 'nominationBox' | 'npc' | 'hohChair' | 'vetoNecklace';
 
-// Simple hook to simulate model loading
+// Function to preload models - returns true immediately to avoid blocking
 export const usePreloadModels = () => {
-  // Always return true - this removes any asynchronous operations that might cause issues
+  // In a real implementation, this would load models asynchronously
   return true;
 };
 
-// Simplified model creation function with minimal properties
+// Create reliable simple 3D models
 export const useGameModel = (modelKey: ModelKey) => {
   const geometry = getGeometryForModelType(modelKey);
-  const color = getColorForModelType(modelKey);
+  const material = getMaterialForModelType(modelKey);
   
   // Create a simple mesh
-  const mesh = new THREE.Mesh(
-    geometry,
-    new THREE.MeshStandardMaterial({ color })
-  );
+  const mesh = new THREE.Mesh(geometry, material);
   
   // Return a simple group with just the mesh
   const group = new THREE.Group();
@@ -32,7 +29,7 @@ export const useGameModel = (modelKey: ModelKey) => {
   };
 };
 
-// Helper functions for geometry and color
+// Helper functions for geometry
 function getGeometryForModelType(modelKey: ModelKey): THREE.BufferGeometry {
   switch(modelKey) {
     case 'house':
@@ -40,7 +37,7 @@ function getGeometryForModelType(modelKey: ModelKey): THREE.BufferGeometry {
     case 'nominationBox':
       return new THREE.BoxGeometry(0.8, 0.8, 0.8);
     case 'npc':
-      return new THREE.BoxGeometry(0.5, 1, 0.5);
+      return new THREE.CylinderGeometry(0.3, 0.3, 1.8, 8);
     case 'hohChair':
       return new THREE.CylinderGeometry(0.6, 0.6, 1, 16);
     case 'vetoNecklace':
@@ -48,19 +45,28 @@ function getGeometryForModelType(modelKey: ModelKey): THREE.BufferGeometry {
   }
 }
 
-function getColorForModelType(modelKey: ModelKey): number {
+// Helper function for materials
+function getMaterialForModelType(modelKey: ModelKey): THREE.Material {
   switch(modelKey) {
     case 'house':
-      return 0x8888FF;
+      return new THREE.MeshStandardMaterial({ color: 0x8888FF });
     case 'nominationBox':
-      return 0xFF8888;
+      return new THREE.MeshStandardMaterial({ color: 0xFF8888 });
     case 'npc':
-      return 0x88FF88;
+      return new THREE.MeshStandardMaterial({ color: 0x88FF88 });
     case 'hohChair':
-      return 0xFFFF88;
+      return new THREE.MeshStandardMaterial({ 
+        color: 0xFFFF88,
+        emissive: 0xFFFF00,
+        emissiveIntensity: 0.2
+      });
     case 'vetoNecklace':
-      return 0xFF88FF;
+      return new THREE.MeshStandardMaterial({ 
+        color: 0xFF88FF,
+        metalness: 0.8,
+        roughness: 0.2
+      });
     default:
-      return 0x888888;
+      return new THREE.MeshStandardMaterial({ color: 0x888888 });
   }
 }

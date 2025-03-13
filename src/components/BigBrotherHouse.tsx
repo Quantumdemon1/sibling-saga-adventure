@@ -1,26 +1,52 @@
 
 import React from 'react';
-import * as THREE from 'three';
 import { Text } from '@react-three/drei';
 
-// Simplified housing component
+// Improved house component
 const BigBrotherHouse: React.FC = () => {  
-  // Create a very simple house with basic shapes
   return (
-    <group>
-      {/* Main structure */}
-      <mesh position={[0, 2.5, -15]}>
-        <boxGeometry args={[20, 5, 30]} />
-        <meshStandardMaterial color="#888888" transparent opacity={0.9} />
+    <group position={[0, 0, -15]}>
+      {/* Foundation */}
+      <mesh position={[0, -0.1, 0]} receiveShadow>
+        <boxGeometry args={[22, 0.2, 32]} />
+        <meshStandardMaterial color="#7B7B7B" />
       </mesh>
       
-      {/* Simple room label */}
+      {/* Main structure */}
+      <mesh position={[0, 2.5, 0]} castShadow receiveShadow>
+        <boxGeometry args={[20, 5, 30]} />
+        <meshStandardMaterial color="#A0A0A0" />
+      </mesh>
+      
+      {/* Roof */}
+      <mesh position={[0, 5.5, 0]} castShadow>
+        <boxGeometry args={[21, 1, 31]} />
+        <meshStandardMaterial color="#5D4037" />
+      </mesh>
+      
+      {/* Front door */}
+      <mesh position={[0, 1.5, 15.01]} castShadow>
+        <boxGeometry args={[2, 3, 0.1]} />
+        <meshStandardMaterial color="#8B4513" />
+      </mesh>
+      
+      {/* Windows */}
+      {[-7, -3.5, 0, 3.5, 7].map((x, i) => (
+        <mesh key={i} position={[x, 3, 15.01]} castShadow>
+          <boxGeometry args={[1.5, 1.5, 0.1]} />
+          <meshStandardMaterial color="#B5D3E7" transparent opacity={0.7} />
+        </mesh>
+      ))}
+      
+      {/* House label */}
       <Text 
-        position={[0, 5, -15]} 
-        fontSize={1}
+        position={[0, 6.5, 0]} 
+        fontSize={1.2}
         color="white"
         anchorX="center"
         anchorY="middle"
+        outlineWidth={0.05}
+        outlineColor="black"
       >
         Big Brother House
       </Text>

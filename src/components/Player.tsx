@@ -2,7 +2,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import useGameStateStore from '@/stores/gameStateStore';
 
 interface PlayerProps {
   controls: React.RefObject<any>;
@@ -10,14 +9,14 @@ interface PlayerProps {
 
 const Player: React.FC<PlayerProps> = ({ controls }) => {
   const playerRef = useRef<THREE.Group>(new THREE.Group());
+  const { camera } = useThree();
   const velocity = useRef<THREE.Vector3>(new THREE.Vector3());
+  const direction = useRef<THREE.Vector3>(new THREE.Vector3());
   const [isGrounded, setIsGrounded] = useState(true);
   const jumpForce = useRef(0);
-  const gravity = useRef(0.01);
-  const { scene } = useThree();
-  const [currentRoom, setCurrentRoom] = useState<string>("Outside");
+  const gravity = 0.01;
   
-  // Simplified keyboard state management using refs instead of state
+  // Keyboard state
   const keys = useRef({
     forward: false,
     backward: false,
@@ -27,10 +26,11 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     space: false
   });
   
-  // Initialize player position
+  // Set up player and camera
   useEffect(() => {
+    // Initialize player position
     if (playerRef.current) {
-      playerRef.current.position.set(0, 1, 5);
+      playerRef.current.position.set(0, 1, 10);
     }
     
     // Set up keyboard listeners
@@ -40,7 +40,13 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
       if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.current.left = true;
       if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.current.right = true;
       if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.current.shift = true;
-      if (e.code === 'Space') keys.current.space = true;
+      if (e.code === 'Space') {
+        keys.current.space = true;
+        if (isGrounded) {
+          jumpForce.current = 0.2;
+          setIsGrounded(false);
+        }
+      }
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -59,67 +65,74 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [isGrounded]);
   
-  // Handle player movement and collisions
+  // Handle player movement
   useFrame((state, delta) => {
-    if (!playerRef.current) return;
-    
-    // Get movement speed (sprint with shift)
-    const speed = keys.current.shift ? 0.15 : 0.08;
-    
-    // Reset horizontal velocity
-    velocity.current.x = 0;
-    velocity.current.z = 0;
+    if (!playerRef.current || !camera) return;
     
     try {
-      // Get camera direction
-      const direction = new THREE.Vector3();
-      if (state.camera) {
-        state.camera.getWorldDirection(direction);
-        direction.y = 0; // Keep movement on the horizontal plane
-        direction.normalize();
-        
-        // Calculate forward and right vectors
-        const forwardVector = direction.clone();
-        const rightVector = new THREE.Vector3(-direction.z, 0, direction.x);
-        
-        // Apply movement based on keys pressed
-        if (keys.current.forward) {
-          velocity.current.add(forwardVector.multiplyScalar(speed));
-        }
-        if (keys.current.backward) {
-          velocity.current.add(forwardVector.multiplyScalar(-speed * 0.7));
-        }
-        if (keys.current.left) {
-          velocity.current.add(rightVector.multiplyScalar(-speed * 0.8));
-        }
-        if (keys.current.right) {
-          velocity.current.add(rightVector.multiplyScalar(speed * 0.8));
-        }
-        
-        // Handle jumping
-        if (keys.current.space && isGrounded) {
-          jumpForce.current = 0.2;
-          setIsGrounded(false);
-        }
-        
-        // Apply gravity and jump force
-        if (!isGrounded) {
-          jumpForce.current -= gravity.current;
-        }
-        velocity.current.y = jumpForce.current;
-        
-        // Move player based on velocity
-        playerRef.current.position.add(velocity.current);
-        
-        // Update camera position to follow player
-        if (state.camera) {
-          state.camera.position.copy(playerRef.current.position.clone().add(new THREE.Vector3(0, 1.6, 0)));
-        }
+      // Get movement speed (sprint with shift)
+      const speed = keys.current.shift ? 0.15 : 0.08;
+      
+      // Reset horizontal velocity
+      velocity.current.x = 0;
+      velocity.current.z = 0;
+      
+      // Get camera direction for movement relative to view
+      direction.current.set(0, 0, -1).applyQuaternion(camera.quaternion);
+      direction.current.y = 0;
+      direction.current.normalize();
+      
+      // Calculate forward and right vectors
+      const forward = direction.current.clone();
+      const right = new THREE.Vector3();
+      right.crossVectors(new THREE.Vector3(0, 1, 0), forward).normalize();
+      
+      // Apply movement based on keys pressed
+      if (keys.current.forward) {
+        velocity.current.add(forward.clone().multiplyScalar(speed));
+      }
+      if (keys.current.backward) {
+        velocity.current.add(forward.clone().multiplyScalar(-speed * 0.7));
+      }
+      if (keys.current.left) {
+        velocity.current.add(right.clone().multiplyScalar(-speed * 0.8));
+      }
+      if (keys.current.right) {
+        velocity.current.add(right.clone().multiplyScalar(speed * 0.8));
+      }
+      
+      // Apply gravity and jumping
+      if (!isGrounded) {
+        jumpForce.current -= gravity;
+      }
+      
+      // Check if player has landed
+      if (playerRef.current.position.y <= 1 && jumpForce.current <= 0) {
+        playerRef.current.position.y = 1;
+        jumpForce.current = 0;
+        setIsGrounded(true);
+      }
+      
+      // Apply vertical movement
+      velocity.current.y = jumpForce.current;
+      
+      // Move player
+      playerRef.current.position.add(velocity.current);
+      
+      // Position camera with player
+      camera.position.x = playerRef.current.position.x;
+      camera.position.y = playerRef.current.position.y + 1.6; // Eye level
+      camera.position.z = playerRef.current.position.z;
+      
+      // Update controls target to look ahead of player
+      if (controls.current) {
+        const lookTarget = playerRef.current.position.clone().add(forward.multiplyScalar(5));
+        controls.current.target.copy(lookTarget);
       }
     } catch (error) {
-      console.error("Error in player movement:", error);
+      console.error("Player movement error:", error);
     }
   });
   

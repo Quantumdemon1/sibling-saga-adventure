@@ -1,32 +1,41 @@
 
 import React from 'react';
-import { Sky } from '@react-three/drei';
+import { Sky, Environment } from '@react-three/drei';
+import { useGameModel } from '@/utils/modelLoader';
+import House from '../House';
+import BigBrotherHouse from '../BigBrotherHouse';
 
-// Super simplified game scene to avoid property issues
 const GameScene: React.FC = () => {
   return (
     <>
-      <Sky sunPosition={[100, 10, 100]} />
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} />
+      {/* Sky and environment */}
+      <Sky sunPosition={[100, 20, 100]} />
+      <Environment preset="sunset" />
       
-      {/* Add a simple placeholder house */}
-      <group position={[0, 0, -10]}>
-        <mesh position={[0, 1, 0]}>
-          <boxGeometry args={[5, 2, 5]} />
-          <meshStandardMaterial color="#8888FF" />
-        </mesh>
-        <mesh position={[0, 2.5, 0]}>
-          <boxGeometry args={[6, 1, 6]} />
-          <meshStandardMaterial color="#888888" />
-        </mesh>
+      {/* Main house */}
+      <group position={[0, 0, 0]}>
+        <BigBrotherHouse />
       </group>
       
-      {/* Ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#336633" />
-      </mesh>
+      {/* Additional structures */}
+      <group position={[15, 0, -15]}>
+        <House />
+      </group>
+      
+      {/* Ground decorations */}
+      <group position={[0, 0, 5]}>
+        {/* Trees */}
+        {[[-10, -10], [10, -10], [-10, 10], [10, 10]].map((pos, i) => (
+          <mesh key={i} position={[pos[0], 1.5, pos[1]]}>
+            <cylinderGeometry args={[0.5, 0.5, 3, 8]} />
+            <meshStandardMaterial color="#5D4037" />
+            <mesh position={[0, 2, 0]}>
+              <coneGeometry args={[2, 4, 8]} />
+              <meshStandardMaterial color="#2E7D32" />
+            </mesh>
+          </mesh>
+        ))}
+      </group>
     </>
   );
 };

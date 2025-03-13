@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useGameContext } from '@/contexts/GameContext';
 import useGameStateStore, { useInitialPlayers } from '@/stores/gameStateStore';
@@ -7,6 +8,7 @@ import GameOverlays from '@/components/ui/GameOverlays';
 import GamePhaseManager from '@/components/game-phases/GamePhaseManager';
 import GameContent from '@/components/ui/GameContent';
 import { toast } from '@/hooks/use-toast';
+import GameWorld from '@/components/GameWorld';
 
 const Game = () => {
   const { currentPlayerId, isGameActive, startGame } = useGameContext();
@@ -23,13 +25,9 @@ const Game = () => {
     setPhase
   } = useGameStateStore();
   
-  // Initialize players
-  const initialPlayers = useInitialPlayers();
-  
   // Local UI state
   const [showControls, setShowControls] = useState(true);
-  const [view3D, setView3D] = useState(false); // Always start with 2D view for reliability
-  const [view3DError, setView3DError] = useState(false);
+  const [is3DActive, setIs3DActive] = useState(true);
   const [isGameReady, setIsGameReady] = useState(false);
   const gameStartAttempted = useRef(false);
 
@@ -41,15 +39,12 @@ const Game = () => {
       // Use a slight delay to avoid state update conflicts
       setTimeout(() => {
         startGame();
-      }, 0);
+      }, 100);
     }
 
-    // Mark the game as ready once we're in idle phase
-    if (isGameActive && currentPhase === 'idle') {
+    // Mark the game as ready once we're initialized
+    if (isGameActive && (currentPhase === 'idle' || currentPhase)) {
       console.log("Game initialized");
-      setIsGameReady(true);
-    } else if (isGameActive) {
-      // Handle any other phase
       setIsGameReady(true);
     }
   }, [isGameActive, currentPhase, startGame]);
@@ -73,14 +68,11 @@ const Game = () => {
   };
 
   const toggleView = () => {
-    // 3D view is disabled in this version for stability
+    setIs3DActive(!is3DActive);
     toast({
-      title: "3D View Unavailable",
-      description: "The 3D view is currently disabled for stability. All features are available in 2D mode.",
-      variant: "destructive"
+      title: is3DActive ? "Switched to 2D Mode" : "Switched to 3D Mode",
+      description: is3DActive ? "Using simplified 2D interface." : "Using immersive 3D environment."
     });
-    // Keep view in 2D mode
-    setView3D(false);
   };
 
   // If game isn't ready yet, show loading screen
@@ -106,7 +98,7 @@ const Game = () => {
           dayCount={dayCount}
           currentPhase={currentPhase}
           onShowWeekSidebar={handleShowWeekSidebar}
-          is3DActive={false} // Always false in this version for stability
+          is3DActive={is3DActive}
           onToggleView={toggleView}
         />
       </div>
@@ -117,6 +109,7 @@ const Game = () => {
           onStartHohCompetition={handleStartHohCompetition}
           onManageAlliances={handleManageAlliances}
         />
+        <GameWorld />
       </div>
       
       {/* Game status sidebar */}

@@ -1,17 +1,18 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
+import ThreeComponents from './game-world/ThreeComponents';
 
-// Define a simple 2D view component that will be shown instead of the 3D view
+// Define a simple 2D view component as a fallback
 const TwoDView: React.FC = () => (
   <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
     <div className="text-center p-6 max-w-md">
       <h2 className="text-2xl mb-4">2D Game View</h2>
       <p className="mb-4">
-        You are currently in 2D mode. The 3D view is not available.
+        You are currently in 2D mode. Switch to 3D for an immersive experience.
       </p>
       <p className="text-gray-300">
-        All game features are available in this view.
+        All game features are available in both views.
       </p>
     </div>
   </div>
@@ -42,18 +43,61 @@ class GameWorldErrorBoundary extends React.Component<{
   }
 }
 
-// Main component that always returns the 2D view for now
+// Main component that toggles between 2D and 3D views
 const GameWorld: React.FC = () => {
-  // Notify user that we're using 2D mode
-  React.useEffect(() => {
-    toast({
-      title: "Using 2D Mode",
-      description: "For optimal performance, the game is running in 2D mode."
-    });
-  }, []);
+  const [view3D, setView3D] = useState(true);
+  const [renderError, setRenderError] = useState<Error | null>(null);
   
-  // Always return the 2D view for stability
-  return <TwoDView />;
+  // Handle ThreeJS errors
+  const handleError = (error: Error) => {
+    console.error("3D view error:", error);
+    setRenderError(error);
+    setView3D(false);
+    
+    toast({
+      title: "3D View Error",
+      description: "Switching to 2D mode due to rendering issues. You can try 3D mode again later.",
+      variant: "destructive"
+    });
+  };
+  
+  // Clear error state when switching views
+  useEffect(() => {
+    if (view3D) {
+      setRenderError(null);
+    }
+  }, [view3D]);
+  
+  // Toggle between 3D and 2D views
+  const toggleView = () => {
+    setView3D(!view3D);
+    toast({
+      title: view3D ? "Switched to 2D Mode" : "Switched to 3D Mode",
+      description: view3D ? "Using simplified 2D interface." : "Using immersive 3D environment."
+    });
+  };
+  
+  return (
+    <div className="w-full h-full">
+      {view3D ? (
+        <GameWorldErrorBoundary onError={handleError}>
+          <ThreeComponents />
+        </GameWorldErrorBoundary>
+      ) : (
+        <TwoDView />
+      )}
+      
+      {/* View switcher */}
+      <div className="absolute top-16 right-4 z-30">
+        <button 
+          onClick={toggleView}
+          className="px-3 py-1 bg-game-accent text-white rounded-md text-sm hover:bg-game-accent-hover transition-colors"
+        >
+          Switch to {view3D ? '2D' : '3D'} View
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default GameWorld;
