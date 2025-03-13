@@ -11,10 +11,10 @@ export const getRelationshipScore = (relationship: Relationship): number => {
     'friendly': 50,
     'neutral': 25,
     'hostile': 0,
-  }[relationship.type];
+  }[relationship.type] || 25;
   
   // Add extra points (positive or negative)
-  return baseScore + relationship.extraPoints;
+  return Math.min(Math.max(baseScore + relationship.extraPoints, 0), 100);
 };
 
 /**
@@ -101,4 +101,35 @@ export const getRelationshipVisuals = (relationship: Relationship) => {
   }
   
   return { color, textColor, score };
+};
+
+/**
+ * Calculate compatibility between two players based on their strategies and stats
+ */
+export const calculateCompatibility = (player1: Player, player2: Player): number => {
+  // This is a simplified compatibility model - can be expanded with more factors
+  let score = 50; // Start neutral
+  
+  // If players' strategies match/clash
+  if (player1.strategy && player2.strategy) {
+    // Players targeting the same strategy generally get along better
+    if (player1.strategy.preferredTargets === player2.strategy.preferredTargets) {
+      score += 15;
+    }
+    
+    // If one player is targeting the other (or their type)
+    if (player1.strategy.targetIds?.includes(player2.id) || 
+        player2.strategy.targetIds?.includes(player1.id)) {
+      score -= 30;
+    }
+  }
+  
+  // Shared alliances = more compatible
+  const player1Alliances = player1.alliances || [];
+  const player2Alliances = player2.alliances || [];
+  const sharedAlliances = player1Alliances.filter(id => player2Alliances.includes(id));
+  score += sharedAlliances.length * 10;
+  
+  // Cap the score between 0-100
+  return Math.min(Math.max(score, 0), 100);
 };
