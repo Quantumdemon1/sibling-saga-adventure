@@ -6,7 +6,14 @@ import { Text } from '@react-three/drei';
 const BigBrotherHouse: React.FC = () => {  
   // Use memoized values for window positions only
   const windowPositions = useMemo(() => {
-    return [-7, -3.5, 0, 3.5, 7].map(x => [x, 3, 15.01]);
+    // Ensure each array has exactly 3 elements for TypeScript type safety
+    return [
+      [-7, 3, 15.01],
+      [-3.5, 3, 15.01],
+      [0, 3, 15.01],
+      [3.5, 3, 15.01],
+      [7, 3, 15.01]
+    ] as const; // Use 'as const' to tell TypeScript these are fixed arrays
   }, []);
 
   return (
