@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import useGameStateStore from '@/stores/gameStateStore';
 import { GameSaveData } from '@/types/saveTypes';
 import { useToast } from '@/components/ui/use-toast';
+import { GamePhase } from '@/types/gameTypes';
 
 const useSaveGameManager = () => {
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -102,7 +103,9 @@ const useSaveGameManager = () => {
       
       // Restore state
       gameState.setPlayers(saveData.gameState.players);
-      gameState.setPhase(saveData.gameState.currentPhase);
+      
+      // Properly cast the phase to GamePhase type
+      gameState.setPhase(saveData.gameState.currentPhase as GamePhase);
       
       if (saveData.gameState.hoh) {
         gameState.setHohWinner(saveData.gameState.hoh);

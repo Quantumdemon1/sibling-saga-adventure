@@ -1,6 +1,6 @@
 
 import { Player } from './PlayerProfileTypes';
-import { Alliance } from './gameTypes';
+import { Alliance, GamePhase } from './gameTypes';
 
 export interface GameSaveData {
   version: string;
@@ -8,11 +8,12 @@ export interface GameSaveData {
   gameState: {
     players: Player[];
     alliances: Alliance[];
-    currentPhase: string;
+    currentPhase: GamePhase;
     nominees: string[];
     hoh: string | null;
     vetoHolder: string | null;
     dayCount: number;
+    weekCount: number;
     [key: string]: any; // Allow for future extensions
   };
 }
