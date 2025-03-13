@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Cube, Layout } from 'lucide-react';
+import { Box, Layout } from 'lucide-react';
 
 interface ViewSwitcherProps {
   is3DActive: boolean;
@@ -17,7 +17,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({ is3DActive, onToggle }) => 
         onClick={() => !is3DActive && onToggle()}
         className={is3DActive ? "bg-game-accent text-white" : "bg-transparent text-game-primary"}
       >
-        <Cube className="h-4 w-4 mr-1" />
+        <Box className="h-4 w-4 mr-1" />
         <span className="hidden sm:inline">3D</span>
       </Button>
       
