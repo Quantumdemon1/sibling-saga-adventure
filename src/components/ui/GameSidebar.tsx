@@ -110,7 +110,7 @@ const GameSidebar: React.FC<GameSidebarProps> = ({
                   <span className={`game-chip ${
                     player.status === 'evicted' 
                       ? 'bg-game-destructive text-white'
-                      : player.status === 'nominated'
+                      : player.status === 'nominee' || player.status === 'nominated'
                       ? 'bg-game-warning text-black'
                       : 'bg-game-surface'
                   }`}>

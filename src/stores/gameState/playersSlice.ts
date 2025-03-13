@@ -36,13 +36,13 @@ export const createPlayersSlice: StateCreator<
       nominees.includes(player.id)
         ? { 
             ...player, 
-            status: 'nominated',
+            status: 'nominee',
             stats: { 
               ...player.stats, 
               nominations: (player.stats?.nominations || 0) + 1 
             } 
           }
-        : player.status === 'nominated' && !nominees.includes(player.id)
+        : player.status === 'nominee' && !nominees.includes(player.id)
           ? { ...player, status: 'active' }
           : player
     )

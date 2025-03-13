@@ -17,7 +17,7 @@ export type OverlayType = {
   allianceName?: string;
 } | null;
 
-export type PlayerStatus = 'active' | 'nominee' | 'hoh' | 'veto' | 'evicted';
+export type PlayerStatus = 'active' | 'nominee' | 'hoh' | 'veto' | 'evicted' | 'nominated';
 
 export type Relationship = {
   type: 'friendly' | 'neutral' | 'hostile';
@@ -29,12 +29,17 @@ export type PlayerStats = {
   physical: number;
   mental: number;
   strategic: number;
+  hohWins?: number;
+  povWins?: number;
+  nominations?: number;
+  daysInHouse?: number;
 };
 
 export type Alliance = {
   id: string;
   name: string;
   members: string[];
+  isSecret?: boolean;
 };
 
 export type AllianceProposal = {
