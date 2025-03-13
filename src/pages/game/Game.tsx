@@ -1,9 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import { useGameContext } from '@/contexts/GameContext';
 import useGameStateStore from '@/stores/gameStateStore';
 import DialogueUI from '@/components/ui/DialogueUI';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import SaveGameUI from '@/components/ui/SaveGameUI';
 
 const Game = () => {
   const { currentPlayerId, isGameActive } = useGameContext();
@@ -83,6 +85,7 @@ const Game = () => {
               </div>
             </div>
             <div className="flex space-x-2">
+              <SaveGameUI />
               <Button 
                 onClick={handleShowWeekSidebar}
                 variant="outline"
