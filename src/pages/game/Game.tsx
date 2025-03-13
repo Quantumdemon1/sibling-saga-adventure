@@ -7,6 +7,7 @@ import GameHeader from '@/components/ui/GameHeader';
 import GameSidebar from '@/components/ui/GameSidebar';
 import GameOverlays from '@/components/ui/GameOverlays';
 import GamePhaseManager from '@/components/game-phases/GamePhaseManager';
+import GameWorld from '@/components/GameWorld';
 
 const Game = () => {
   const { currentPlayerId, isGameActive } = useGameContext();
@@ -24,6 +25,7 @@ const Game = () => {
   } = useGameStateStore();
   
   const [showControls, setShowControls] = useState(true);
+  const [view3D, setView3D] = useState(true);
 
   useEffect(() => {
     // Start with an idle phase
@@ -67,6 +69,10 @@ const Game = () => {
     }
   };
 
+  const toggleView = () => {
+    setView3D(prev => !prev);
+  };
+
   return (
     <div className="game-container relative">
       {/* Game header */}
@@ -81,15 +87,23 @@ const Game = () => {
           dayCount={dayCount}
           currentPhase={currentPhase}
           onShowWeekSidebar={handleShowWeekSidebar}
+          is3DActive={view3D}
+          onToggleView={toggleView}
         />
       </motion.div>
 
       {/* Main game content */}
       <div className="pt-16 h-full">
-        <GamePhaseManager
-          onStartHohCompetition={handleStartHohCompetition}
-          onManageAlliances={handleManageAlliances}
-        />
+        {view3D ? (
+          <div className="h-full">
+            <GameWorld />
+          </div>
+        ) : (
+          <GamePhaseManager
+            onStartHohCompetition={handleStartHohCompetition}
+            onManageAlliances={handleManageAlliances}
+          />
+        )}
       </div>
       
       {/* Game status sidebar */}
