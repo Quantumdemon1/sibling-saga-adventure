@@ -2,13 +2,11 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import useGameStateStore from '@/stores/gameStateStore';
-import { useGameContext } from '@/contexts/GameContext';
 
 export const useSaveGame = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const gameState = useGameStateStore();
-  const { players } = useGameContext();
 
   const saveGame = useCallback(() => {
     try {
@@ -18,7 +16,7 @@ export const useSaveGame = () => {
         currentPhase: gameState.currentPhase,
         dayCount: gameState.dayCount,
         weekCount: gameState.weekCount,
-        players: players,
+        players: gameState.players,
         hoh: gameState.hoh,
         nominees: gameState.nominees,
         vetoHolder: gameState.vetoHolder,
@@ -42,7 +40,7 @@ export const useSaveGame = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [gameState, players, toast]);
+  }, [gameState, toast]);
 
   const loadGame = useCallback(() => {
     try {
