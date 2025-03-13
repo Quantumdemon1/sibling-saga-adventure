@@ -12,6 +12,10 @@ export const initialPlayers: Player[] = [
     alliances: [],
     relationships: {},
     stats: {
+      social: 5,
+      physical: 5,
+      mental: 5,
+      strategic: 5,
       hohWins: 0,
       povWins: 0,
       nominations: 0,
@@ -29,6 +33,10 @@ export const initialPlayers: Player[] = [
       'player1': { type: 'neutral', extraPoints: 0 }
     },
     stats: {
+      social: 6,
+      physical: 4,
+      mental: 5,
+      strategic: 7,
       hohWins: 0,
       povWins: 0,
       nominations: 0,
@@ -47,6 +55,10 @@ export const initialPlayers: Player[] = [
       'npc1': { type: 'neutral', extraPoints: 0 }
     },
     stats: {
+      social: 8,
+      physical: 3,
+      mental: 6,
+      strategic: 5,
       hohWins: 0,
       povWins: 0,
       nominations: 0,
@@ -66,6 +78,10 @@ export const initialPlayers: Player[] = [
       'npc2': { type: 'neutral', extraPoints: 0 }
     },
     stats: {
+      social: 4,
+      physical: 7,
+      mental: 6,
+      strategic: 8,
       hohWins: 0,
       povWins: 0,
       nominations: 0,
@@ -86,6 +102,10 @@ export const initialPlayers: Player[] = [
       'npc3': { type: 'hostile', extraPoints: -15 }
     },
     stats: {
+      social: 7,
+      physical: 6,
+      mental: 4,
+      strategic: 5,
       hohWins: 0,
       povWins: 0,
       nominations: 0,

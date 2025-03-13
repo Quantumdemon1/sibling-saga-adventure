@@ -27,7 +27,25 @@ export const createAIPlayers = (count: number, difficulty: Difficulty = 'medium'
     const personality = PERSONALITIES[Math.floor(Math.random() * PERSONALITIES.length)] as Player['personality'];
     
     // Difficulty affects AI player stats and strategy
-    const strategicLevel = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 3 : 5;
+    const baseLevel = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 5 : 7;
+    
+    // Generate random stats based on difficulty and personality
+    const generateStat = () => Math.max(1, Math.min(10, baseLevel + Math.floor(Math.random() * 3) - 1));
+    
+    const stats = {
+      social: generateStat(),
+      physical: generateStat(),
+      mental: generateStat(),
+      strategic: generateStat(),
+      hohWins: 0,
+      povWins: 0,
+      nominations: 0,
+      daysInHouse: 1
+    };
+    
+    // Adjust stats based on personality
+    if (personality === 'social') stats.social += 2;
+    if (personality === 'strategist') stats.strategic += 2;
     
     const player: Player = {
       id: uuidv4(),
@@ -38,12 +56,7 @@ export const createAIPlayers = (count: number, difficulty: Difficulty = 'medium'
       isAI: true,
       alliances: [],
       relationships: {},
-      stats: {
-        hohWins: 0,
-        povWins: 0,
-        nominations: 0,
-        daysInHouse: 1
-      },
+      stats,
       strategy: {
         targetIds: [],
         allianceIds: [],
