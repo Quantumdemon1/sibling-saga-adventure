@@ -16,4 +16,9 @@ export interface Player {
     allianceIds?: string[];
     preferredTargets?: 'strong' | 'weak' | 'neutral';
   };
+  personality?: 'social' | 'loner' | 'strategist' | 'loyalist';
+  lastProposal?: number;
 }
+
+// For backward compatibility
+export type PlayerData = Player;
