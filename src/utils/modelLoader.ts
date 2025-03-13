@@ -21,12 +21,18 @@ export const usePreloadModels = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
+        // Ensure the promises array doesn't contain undefined values
         const promises = Object.values(MODEL_PATHS).map((path) => 
-          useGLTF.preload(path).catch((error) => {
-            console.log(`Model not found: ${path}`);
-            return null; // Return null instead of undefined
-          })
+          // Return a promise that resolves to null if the model fails to load
+          useGLTF.preload(path)
+            .then(result => result)
+            .catch((error) => {
+              console.log(`Model not found: ${path}`);
+              return null; // Explicitly return null
+            })
         );
+        
+        // Now TypeScript knows all promises resolve to either a model or null
         await Promise.all(promises);
         setIsLoaded(true);
       } catch (error) {
