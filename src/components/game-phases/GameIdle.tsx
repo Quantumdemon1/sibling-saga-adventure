@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import RelationshipManager from '@/components/relationships/RelationshipManager';
 
 interface GameIdleProps {
   onStartHohCompetition: () => void;
@@ -11,6 +12,8 @@ const GameIdle: React.FC<GameIdleProps> = ({
   onStartHohCompetition,
   onManageAlliances
 }) => {
+  const [showRelationships, setShowRelationships] = useState(false);
+  
   return (
     <div className="h-full flex items-center justify-center">
       <div className="text-center">
@@ -26,8 +29,20 @@ const GameIdle: React.FC<GameIdleProps> = ({
           <Button onClick={onManageAlliances} className="game-button-secondary">
             Manage Alliances
           </Button>
+          <Button 
+            onClick={() => setShowRelationships(true)} 
+            className="game-button-secondary"
+          >
+            Manage Relationships
+          </Button>
         </div>
       </div>
+      
+      {/* Relationship Manager Dialog */}
+      <RelationshipManager 
+        open={showRelationships} 
+        onClose={() => setShowRelationships(false)} 
+      />
     </div>
   );
 };
