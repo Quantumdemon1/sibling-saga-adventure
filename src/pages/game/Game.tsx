@@ -5,8 +5,8 @@ import DialogueUI from '@/components/ui/DialogueUI';
 import { motion } from 'framer-motion';
 import GameHeader from '@/components/ui/GameHeader';
 import GameSidebar from '@/components/ui/GameSidebar';
-import GameContent from '@/components/ui/GameContent';
 import GameOverlays from '@/components/ui/GameOverlays';
+import GamePhaseManager from '@/components/game-phases/GamePhaseManager';
 
 const Game = () => {
   const { currentPlayerId, isGameActive } = useGameContext();
@@ -43,7 +43,7 @@ const Game = () => {
 
   const handleStartHohCompetition = () => {
     setPhase('hohCompetition');
-    setOverlay({ type: 'hoh' });
+    setOverlay(null);
   };
 
   const handleManageAlliances = () => {
@@ -85,10 +85,12 @@ const Game = () => {
       </motion.div>
 
       {/* Main game content */}
-      <GameContent 
-        onStartHohCompetition={handleStartHohCompetition}
-        onManageAlliances={handleManageAlliances}
-      />
+      <div className="pt-16 h-full">
+        <GamePhaseManager
+          onStartHohCompetition={handleStartHohCompetition}
+          onManageAlliances={handleManageAlliances}
+        />
+      </div>
       
       {/* Game status sidebar */}
       <GameSidebar 
