@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Box, Layout } from 'lucide-react';
+import { Box, Layout, Eye } from 'lucide-react';
 
 interface ViewSwitcherProps {
   is3DActive: boolean;
@@ -23,6 +23,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         className={`
           ${is3DActive ? "bg-game-accent text-white" : "bg-transparent text-gray-400"}
           ${is3DDisabled ? "opacity-60 cursor-not-allowed" : ""}
+          transition-all duration-200 ease-in-out hover:scale-105
         `}
         disabled={is3DDisabled && !is3DActive}
       >
@@ -34,7 +35,10 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         variant={!is3DActive ? "default" : "outline"}
         size="sm"
         onClick={onToggle}
-        className={!is3DActive ? "bg-game-accent text-white" : "bg-transparent text-gray-400"}
+        className={`
+          ${!is3DActive ? "bg-game-accent text-white" : "bg-transparent text-gray-400"}
+          transition-all duration-200 ease-in-out hover:scale-105
+        `}
       >
         <Layout className="h-4 w-4 mr-1" />
         <span className="hidden sm:inline">2D</span>
