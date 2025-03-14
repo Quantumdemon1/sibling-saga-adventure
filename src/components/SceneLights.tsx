@@ -39,6 +39,24 @@ const SceneLights: React.FC = () => {
         position={[-5, 5, -5]}
         intensity={0.3}
       />
+      
+      {/* Add a spotlight to highlight important areas */}
+      <spotLight
+        position={[0, 10, 0]}
+        angle={0.3}
+        penumbra={0.2}
+        intensity={0.8}
+        castShadow
+        shadow-mapSize-width={512}
+        shadow-mapSize-height={512}
+      />
+      
+      {/* Add a subtle warm hemisphere light for more realistic lighting */}
+      <hemisphereLight
+        color="#ffffbb"
+        groundColor="#080820"
+        intensity={0.3}
+      />
     </>
   );
 };

@@ -29,50 +29,63 @@ const InteractiveObject: React.FC<InteractiveObjectProps> = ({
   const [wasPressed, setWasPressed] = useState(false);
   const { camera } = useThree();
   
-  // Track E key press manually instead of using useKeyboardControls
-  useFrame(() => {
-    // Check for E key press using standard DOM event tracking
-    const eKeyPressed = window.document.querySelector('body')?.getAttribute('data-key-e') === 'true';
+  // Optimize by checking every few frames instead of every frame
+  useFrame((state) => {
+    if (!meshRef.current) return;
     
-    // Handle key up/down to prevent multiple triggers
-    if (eKeyPressed && !wasPressed) {
-      setWasPressed(true);
+    // Optimize by only checking every few frames
+    if (Math.floor(state.clock.elapsedTime * 10) % 3 === 0) {
+      // Check for E key press using standard DOM event tracking
+      const eKeyPressed = window.document.querySelector('body')?.getAttribute('data-key-e') === 'true';
       
-      // Only allow interaction if we're in the correct phase or if no phase is specified
-      if ((!phase || currentPhase === phase) && meshRef.current) {
-        const playerPosition = camera.position;
-        const objectPosition = meshRef.current.position;
-        const distance = playerPosition.distanceTo(objectPosition);
+      // Handle key up/down to prevent multiple triggers
+      if (eKeyPressed && !wasPressed) {
+        setWasPressed(true);
         
-        // Check if player is close enough (3 units)
-        if (distance < 3) {
-          onInteract();
+        // Only allow interaction if we're in the correct phase or if no phase is specified
+        if ((!phase || currentPhase === phase) && meshRef.current) {
+          const playerPosition = camera.position;
+          const objectPosition = meshRef.current.position;
+          const distance = playerPosition.distanceTo(objectPosition);
+          
+          // Check if player is close enough (3 units)
+          if (distance < 3) {
+            onInteract();
+          }
         }
+      } else if (!eKeyPressed && wasPressed) {
+        setWasPressed(false);
       }
-    } else if (!eKeyPressed && wasPressed) {
-      setWasPressed(false);
-    }
-    
-    // Check if player is looking at the object (simplified)
-    if (meshRef.current) {
-      const distance = camera.position.distanceTo(meshRef.current.position);
-      
-      // Update hover state based on distance only to improve performance
-      const isHovered = distance < 5;
-      if (isHovered !== hovered) {
-        setHovered(isHovered);
+
+      // Simplified hover detection
+      if (meshRef.current) {
+        const distance = camera.position.distanceTo(meshRef.current.position);
+        const isHovered = distance < 5;
+        
+        if (isHovered !== hovered) {
+          setHovered(isHovered);
+        }
       }
     }
   });
 
-  // Scale based on hover state
-  const hoverScale = hovered ? scale * 1.1 : scale;
+  // Hover effect animation
+  useFrame(({ clock }) => {
+    if (meshRef.current && hovered) {
+      // Subtle hover animation
+      const hoverScale = scale * (1 + Math.sin(clock.elapsedTime * 3) * 0.05);
+      meshRef.current.scale.set(hoverScale, hoverScale, hoverScale);
+    } else if (meshRef.current && !hovered) {
+      // Reset scale when not hovered
+      meshRef.current.scale.set(scale, scale, scale);
+    }
+  });
 
   return (
     <mesh 
       ref={meshRef} 
       position={position} 
-      scale={[hoverScale, hoverScale, hoverScale]}
+      scale={[scale, scale, scale]}
     >
       {geometry && material ? (
         <>
@@ -87,6 +100,8 @@ const InteractiveObject: React.FC<InteractiveObjectProps> = ({
           <boxGeometry args={[1, 1, 1]} />
           <meshBasicMaterial 
             color={hovered ? "#ffcc00" : "#cccccc"} 
+            emissive={hovered ? "#ffcc00" : undefined}
+            emissiveIntensity={hovered ? 0.5 : 0}
           />
         </>
       )}

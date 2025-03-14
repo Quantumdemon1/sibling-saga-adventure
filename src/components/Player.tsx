@@ -14,7 +14,7 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
   const direction = useRef<THREE.Vector3>(new THREE.Vector3());
   const [isGrounded, setIsGrounded] = useState(true);
   const jumpForce = useRef(0);
-  const gravity = 0.01;
+  const gravity = 0.015; // Increased gravity for better jumping feel
   
   // Keyboard state
   const keys = useRef({
@@ -43,7 +43,7 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
       if (e.code === 'Space') {
         keys.current.space = true;
         if (isGrounded) {
-          jumpForce.current = 0.2;
+          jumpForce.current = 0.25; // Increased jump force
           setIsGrounded(false);
         }
       }
@@ -73,7 +73,7 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
     
     try {
       // Get movement speed (sprint with shift)
-      const speed = keys.current.shift ? 0.15 : 0.08;
+      const speed = keys.current.shift ? 0.20 : 0.10;
       
       // Reset horizontal velocity
       velocity.current.x = 0;
@@ -131,6 +131,25 @@ const Player: React.FC<PlayerProps> = ({ controls }) => {
         const lookTarget = playerRef.current.position.clone().add(forward.multiplyScalar(5));
         controls.current.target.copy(lookTarget);
       }
+      
+      // Implement simple collision detection with world boundaries
+      const boundaries = {
+        minX: -40,
+        maxX: 40,
+        minZ: -40,
+        maxZ: 40
+      };
+      
+      playerRef.current.position.x = Math.max(
+        boundaries.minX, 
+        Math.min(boundaries.maxX, playerRef.current.position.x)
+      );
+      
+      playerRef.current.position.z = Math.max(
+        boundaries.minZ, 
+        Math.min(boundaries.maxZ, playerRef.current.position.z)
+      );
+      
     } catch (error) {
       console.error("Player movement error:", error);
     }

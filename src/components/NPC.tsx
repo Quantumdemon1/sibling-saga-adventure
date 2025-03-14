@@ -25,6 +25,7 @@ const NPC: React.FC<NPCProps> = ({
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [bodyRotation, setBodyRotation] = useState(0);
+  const [interactionReady, setInteractionReady] = useState(false);
   const [movementOffset, setMovementOffset] = useState({ x: 0, z: 0 });
   
   // Try to load NPC model
@@ -54,9 +55,12 @@ const NPC: React.FC<NPCProps> = ({
     }
   }, [behavior]);
   
-  // Random idle movement for NPC
-  useFrame(({ clock, camera }) => {
-    if (groupRef.current) {
+  // Random idle movement for NPC - optimized to run less frequently
+  useFrame(({ clock, camera }, delta) => {
+    if (!groupRef.current) return;
+    
+    // Optimization: only update position every few frames
+    if (clock.elapsedTime % 0.1 < delta) {
       // Make the NPC face the player when nearby
       if (hovered) {
         const targetRotation = Math.atan2(
@@ -64,6 +68,10 @@ const NPC: React.FC<NPCProps> = ({
           camera.position.z - groupRef.current.position.z
         );
         setBodyRotation(targetRotation);
+        
+        // Check if close enough for interaction
+        const distance = camera.position.distanceTo(groupRef.current.position);
+        setInteractionReady(distance < 3);
       } else {
         // Behavior-specific animations
         switch (behavior) {
@@ -93,49 +101,82 @@ const NPC: React.FC<NPCProps> = ({
             break;
         }
       }
-      
-      // Apply the rotation
-      groupRef.current.rotation.y = bodyRotation;
-      
-      // Subtle breathing animation
+    }
+    
+    // Apply the rotation - do this every frame for smooth motion
+    if (groupRef.current) {
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(
+        groupRef.current.rotation.y,
+        bodyRotation,
+        0.1
+      );
+    }
+    
+    // Find the body mesh and animate it if we're not using a model
+    if (groupRef.current?.children[0] && !npcModel?.scene) {
       const breathe = Math.sin(clock.getElapsedTime() * 1.5) * 0.02;
-      
-      // Find the body mesh and animate it
-      if (groupRef.current.children[0] && !npcModel.scene) {
-        groupRef.current.children[0].scale.y = 1 + breathe;
-        groupRef.current.children[0].position.y = 1 + breathe/2;
-      }
+      groupRef.current.children[0].scale.y = 1 + breathe;
+      groupRef.current.children[0].position.y = 1 + breathe/2;
     }
   });
   
   // Handle interaction
   const handleInteract = () => {
-    if (currentPhase === 'idle') {
+    if (currentPhase === 'idle' || (currentPhase === 'nominationCeremony' && npcId === hoh)) {
       setOverlay({ type: 'dialogue', npcId });
     }
   };
   
-  // Detect when player is looking at or near the NPC
-  useFrame((state) => {
-    if (groupRef.current) {
+  // Detect when player is looking at or near the NPC - optimized to check less frequently
+  useFrame((state, delta) => {
+    // Only check every few frames to improve performance
+    if (state.clock.elapsedTime % 0.2 < delta && groupRef.current) {
       const playerPosition = state.camera.position;
       const npcPosition = new THREE.Vector3(...position);
       const distance = playerPosition.distanceTo(npcPosition);
       
-      // Check if player is looking at NPC and is close enough
-      const direction = new THREE.Vector3();
-      state.camera.getWorldDirection(direction);
-      const raycaster = new THREE.Raycaster(state.camera.position, direction);
-      const intersects = raycaster.intersectObject(groupRef.current, true);
-      
-      const isHovered = intersects.length > 0 && distance < 5;
+      // Simple distance-based hover detection (more performant)
+      const isHovered = distance < 5;
       if (isHovered !== hovered) {
         setHovered(isHovered);
       }
     }
   });
 
-  if (npcModel.scene) {
+  // Check for E key press when hovered
+  useEffect(() => {
+    if (!hovered || !interactionReady) return;
+    
+    const checkKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'e' || e.key === 'E') {
+        handleInteract();
+      }
+    };
+    
+    window.addEventListener('keydown', checkKeyPress);
+    return () => window.removeEventListener('keydown', checkKeyPress);
+  }, [hovered, interactionReady, handleInteract]);
+
+  // Clean up resources when component unmounts
+  useEffect(() => {
+    return () => {
+      if (npcModel?.scene) {
+        // Dispose of model resources
+        npcModel.scene.traverse((object: any) => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) {
+            if (Array.isArray(object.material)) {
+              object.material.forEach((material: THREE.Material) => material.dispose());
+            } else {
+              object.material.dispose();
+            }
+          }
+        });
+      }
+    };
+  }, []);
+
+  if (npcModel?.scene) {
     return (
       <group ref={groupRef} position={position}>
         <primitive
@@ -143,7 +184,7 @@ const NPC: React.FC<NPCProps> = ({
           scale={[0.01, 0.01, 0.01]}
         />
         
-        {/* Name label above head */}
+        {/* Name label above head - more dynamic */}
         <Text
           position={[0, 2.7, 0]}
           fontSize={0.2}
@@ -154,7 +195,7 @@ const NPC: React.FC<NPCProps> = ({
           outlineColor="black"
         >
           {name}
-          {hovered && " (Press E)"}
+          {interactionReady && " (Press E)"}
         </Text>
         
         {/* Clickable/interactive box */}
@@ -166,6 +207,14 @@ const NPC: React.FC<NPCProps> = ({
         >
           <meshBasicMaterial transparent opacity={0} />
         </Box>
+        
+        {/* Status indicator for HoH or nominee */}
+        {(npcId === hoh || nominees.includes(npcId)) && (
+          <mesh position={[0, 3, 0]}>
+            <sphereGeometry args={[0.15, 16, 16]} />
+            <meshBasicMaterial color={statusColor} />
+          </mesh>
+        )}
       </group>
     );
   }
@@ -194,7 +243,7 @@ const NPC: React.FC<NPCProps> = ({
         outlineColor="black"
       >
         {name}
-        {hovered && " (Press E)"}
+        {interactionReady && " (Press E)"}
       </Text>
       
       {/* Clickable/interactive behavior */}
@@ -206,6 +255,14 @@ const NPC: React.FC<NPCProps> = ({
       >
         <meshBasicMaterial transparent opacity={0} />
       </Box>
+      
+      {/* Status indicator for HoH or nominee */}
+      {(npcId === hoh || nominees.includes(npcId)) && (
+        <mesh position={[0, 3, 0]}>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color={statusColor} />
+        </mesh>
+      )}
     </group>
   );
 };
