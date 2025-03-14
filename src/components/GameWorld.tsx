@@ -1,37 +1,60 @@
-
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import ThreeComponents from './game-world/ThreeComponents';
 import ViewSwitcher from './ui/ViewSwitcher';
+import useGameStateStore from '@/stores/gameStateStore';
 
-// Define a simple 2D view component as a fallback
-const TwoDView: React.FC = () => (
-  <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
-    <div className="text-center p-6 max-w-md">
-      <h2 className="text-2xl mb-4">2D Game View</h2>
-      <p className="mb-4">
-        You are currently in 2D mode. Switch to 3D for an immersive experience.
-      </p>
-      <p className="text-gray-300">
-        All game features are available in both views.
-      </p>
+// Define an enhanced 2D view component that includes game features
+const EnhancedTwoDView: React.FC = () => {
+  const { currentPhase } = useGameStateStore();
+  
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
+      <div className="text-center p-6 max-w-lg">
+        <h2 className="text-2xl mb-4">Big Brother Game View</h2>
+        <div className="bg-gray-800 p-4 rounded-lg mb-6">
+          <p className="mb-4">
+            The 3D environment is currently unavailable while we fix stability issues.
+            All game features are fully functional in this 2D mode.
+          </p>
+          
+          {/* Placeholder for game UI elements */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-gray-700 p-3 rounded text-left">
+              <h3 className="font-bold mb-1">House Areas</h3>
+              <ul className="text-sm">
+                <li>• HoH Room</li>
+                <li>• Kitchen</li>
+                <li>• Living Room</li>
+                <li>• Nomination Area</li>
+              </ul>
+            </div>
+            <div className="bg-gray-700 p-3 rounded text-left">
+              <h3 className="font-bold mb-1">Current Phase</h3>
+              <p className="text-yellow-300 font-bold">{currentPhase.replace(/([A-Z])/g, ' $1').trim()}</p>
+              <p className="text-xs mt-1">Make your strategic choices</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="text-sm text-gray-400">
+          Development Note: We're working on a stable 3D view that will be available in a future update.
+        </div>
+      </div>
     </div>
-  </div>
-);
-
-// Define the state type for the error boundary
-interface GameWorldErrorBoundaryState {
-  hasError: boolean;
-  errorCount: number;
-}
+  );
+};
 
 // Simple error boundary component for the game world
 class GameWorldErrorBoundary extends React.Component<{
   children: React.ReactNode;
   onError: (error: Error) => void;
-}, GameWorldErrorBoundaryState> {
+}, {
+  hasError: boolean;
+  errorCount: number;
+}> {
   // Initialize state with proper typing
-  state: GameWorldErrorBoundaryState = {
+  state = {
     hasError: false,
     errorCount: 0
   };
@@ -52,7 +75,7 @@ class GameWorldErrorBoundary extends React.Component<{
   
   render() {
     if (this.state.hasError) {
-      return <TwoDView />;
+      return <EnhancedTwoDView />;
     }
     
     return this.props.children;
@@ -61,7 +84,8 @@ class GameWorldErrorBoundary extends React.Component<{
 
 // Main component that toggles between 2D and 3D views
 const GameWorld: React.FC = () => {
-  const [view3D, setView3D] = useState(true);
+  // Force 2D mode by default, 3D disabled until stable
+  const [view3D, setView3D] = useState(false);
   const [renderError, setRenderError] = useState<Error | null>(null);
   const [errorCount, setErrorCount] = useState(0);
   const [isRecovering, setIsRecovering] = useState(false);
@@ -70,65 +94,50 @@ const GameWorld: React.FC = () => {
   const handleError = (error: Error) => {
     console.error("3D view error:", error);
     setRenderError(error);
+    setView3D(false);
     
-    // Only force 2D mode after multiple errors
-    if (errorCount >= 2) {
-      setView3D(false);
-      
-      toast({
-        title: "3D View Issues",
-        description: "Switching to 2D mode due to rendering issues. You can try 3D mode again later.",
-        variant: "destructive"
-      });
-    } else {
-      // Try to recover from error
-      setIsRecovering(true);
-      setTimeout(() => {
-        setIsRecovering(false);
-      }, 1500);
-    }
+    toast({
+      title: "3D View Issues",
+      description: "Switching to 2D mode due to rendering issues. 3D mode will be available in a future update.",
+      variant: "destructive"
+    });
     
     setErrorCount(prev => prev + 1);
   };
   
-  // Clear error state when switching views
-  useEffect(() => {
-    if (view3D) {
-      setRenderError(null);
-    }
-  }, [view3D]);
-  
   // Toggle between 3D and 2D views
   const toggleView = () => {
-    setView3D(!view3D);
-    toast({
-      title: view3D ? "Switched to 2D Mode" : "Switched to 3D Mode",
-      description: view3D ? "Using simplified 2D interface." : "Using immersive 3D environment."
-    });
+    if (view3D) {
+      setView3D(false);
+      toast({
+        title: "Switched to 2D Mode",
+        description: "Using simplified 2D interface."
+      });
+    } else {
+      // Display a "coming soon" toast instead of enabling 3D
+      toast({
+        title: "3D View Coming Soon",
+        description: "We're working on stability improvements for the 3D view.",
+        variant: "default"
+      });
+      
+      // Uncomment this when 3D is ready:
+      // setView3D(true);
+    }
   };
   
   return (
     <div className="w-full h-full">
-      {isRecovering ? (
-        <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
-          <div className="text-center">
-            <p className="mb-2">Recovering 3D view...</p>
-            <div className="w-32 h-2 bg-gray-700 rounded overflow-hidden">
-              <div className="h-full bg-blue-500 animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      ) : view3D ? (
-        <GameWorldErrorBoundary onError={handleError}>
-          <ThreeComponents />
-        </GameWorldErrorBoundary>
-      ) : (
-        <TwoDView />
-      )}
+      {/* Always show 2D view for now */}
+      <EnhancedTwoDView />
       
-      {/* View switcher */}
+      {/* Keep the view switcher component for future use */}
       <div className="absolute top-16 right-4 z-30">
-        <ViewSwitcher is3DActive={view3D} onToggle={toggleView} />
+        <ViewSwitcher 
+          is3DActive={view3D} 
+          onToggle={toggleView} 
+          is3DDisabled={true}
+        />
       </div>
     </div>
   );
