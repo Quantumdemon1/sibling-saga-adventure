@@ -25,10 +25,10 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
           ${is3DDisabled ? "opacity-60 cursor-not-allowed" : ""}
           transition-all duration-200 ease-in-out hover:scale-105
         `}
-        disabled={is3DDisabled && !is3DActive}
+        disabled={is3DDisabled}
       >
         <Box className="h-4 w-4 mr-1" />
-        <span className="hidden sm:inline">{is3DDisabled ? "3D (Soon)" : "3D"}</span>
+        <span className="hidden sm:inline">3D</span>
       </Button>
       
       <Button
