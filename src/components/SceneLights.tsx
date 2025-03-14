@@ -11,7 +11,7 @@ const SceneLights: React.FC = () => {
     gl.shadowMap.enabled = true;
     gl.shadowMap.type = THREE.PCFShadowMap; // Less expensive than PCFSoftShadowMap
     
-    // Update: Replace outdated outputEncoding with the new outputColorSpace property
+    // Use the modern outputColorSpace property instead of deprecated outputEncoding
     gl.outputColorSpace = THREE.SRGBColorSpace;
   });
 

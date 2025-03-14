@@ -22,7 +22,7 @@ const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         onClick={onToggle}
         className={`
           ${is3DActive ? "bg-game-accent text-white" : "bg-transparent text-gray-400"}
-          ${is3DDisabled ? "opacity-60" : ""}
+          ${is3DDisabled ? "opacity-60 cursor-not-allowed" : ""}
         `}
         disabled={is3DDisabled && !is3DActive}
       >
