@@ -98,7 +98,7 @@ const InteractiveObject: React.FC<InteractiveObjectProps> = ({
         // Default shape if nothing is provided
         <>
           <boxGeometry args={[1, 1, 1]} />
-          <meshBasicMaterial 
+          <meshStandardMaterial 
             color={hovered ? "#ffcc00" : "#cccccc"} 
             emissive={hovered ? "#ffcc00" : undefined}
             emissiveIntensity={hovered ? 0.5 : 0}
