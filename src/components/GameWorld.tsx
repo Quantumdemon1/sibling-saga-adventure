@@ -64,6 +64,7 @@ const GameWorld: React.FC = () => {
   const [view3D, setView3D] = useState(true);
   const [renderError, setRenderError] = useState<Error | null>(null);
   const [errorCount, setErrorCount] = useState(0);
+  const [isRecovering, setIsRecovering] = useState(false);
   
   // Handle ThreeJS errors
   const handleError = (error: Error) => {
@@ -79,6 +80,12 @@ const GameWorld: React.FC = () => {
         description: "Switching to 2D mode due to rendering issues. You can try 3D mode again later.",
         variant: "destructive"
       });
+    } else {
+      // Try to recover from error
+      setIsRecovering(true);
+      setTimeout(() => {
+        setIsRecovering(false);
+      }, 1500);
     }
     
     setErrorCount(prev => prev + 1);
@@ -102,7 +109,16 @@ const GameWorld: React.FC = () => {
   
   return (
     <div className="w-full h-full">
-      {view3D ? (
+      {isRecovering ? (
+        <div className="w-full h-full flex items-center justify-center bg-game-bg text-white">
+          <div className="text-center">
+            <p className="mb-2">Recovering 3D view...</p>
+            <div className="w-32 h-2 bg-gray-700 rounded overflow-hidden">
+              <div className="h-full bg-blue-500 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      ) : view3D ? (
         <GameWorldErrorBoundary onError={handleError}>
           <ThreeComponents />
         </GameWorldErrorBoundary>

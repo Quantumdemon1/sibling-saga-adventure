@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { Sky } from '@react-three/drei';
+import * as THREE from 'three';
 import House from '../House';
 import BigBrotherHouse from '../BigBrotherHouse';
 
@@ -31,8 +31,11 @@ const GameScene: React.FC = () => {
 
   return (
     <>
-      {/* Sky with more stable settings */}
-      <Sky distance={450000} sunPosition={[100, 20, 100]} />
+      {/* Sky dome instead of Sky component */}
+      <mesh>
+        <sphereGeometry args={[450, 32, 16]} />
+        <meshBasicMaterial color="#87CEEB" side={THREE.BackSide} />
+      </mesh>
       
       {/* Enhanced ambient and directional lighting to replace Environment */}
       <ambientLight intensity={0.4} />
@@ -40,6 +43,13 @@ const GameScene: React.FC = () => {
         position={[10, 10, 5]} 
         intensity={1.5} 
         castShadow 
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        shadow-camera-far={50}
+        shadow-camera-left={-20}
+        shadow-camera-right={20}
+        shadow-camera-top={20}
+        shadow-camera-bottom={-20}
       />
       
       {/* Main house */}

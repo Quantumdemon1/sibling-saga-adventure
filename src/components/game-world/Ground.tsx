@@ -13,7 +13,7 @@ const Ground: React.FC<GroundProps> = ({ size }) => {
       receiveShadow
     >
       <planeGeometry args={size} />
-      <meshStandardMaterial color="#8FB275" />
+      <meshLambertMaterial color="#8FB275" /> {/* Using LambertMaterial for better performance */}
     </mesh>
   );
 };

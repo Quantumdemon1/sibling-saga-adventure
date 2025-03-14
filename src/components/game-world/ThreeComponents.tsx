@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Stats, PerspectiveCamera } from '@react-three/drei';
 import GameScene from './GameScene';
 import LoadingScreen from './LoadingScreen';
@@ -12,12 +12,49 @@ import useGameStateStore from '@/stores/gameStateStore';
 import PhaseVisualizer from '../phase-visualizations/PhaseVisualizer';
 import GamePhaseElements from './GamePhaseElements';
 
+// WebGL error handler component
+const WebGLErrorHandler = () => {
+  const { gl } = useThree();
+  
+  useEffect(() => {
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      console.log("WebGL context lost - attempting recovery");
+    };
+    
+    const handleContextRestored = () => {
+      console.log("WebGL context restored");
+    };
+    
+    const canvas = gl.domElement;
+    canvas.addEventListener('webglcontextlost', handleContextLost);
+    canvas.addEventListener('webglcontextrestored', handleContextRestored);
+    
+    return () => {
+      canvas.removeEventListener('webglcontextlost', handleContextLost);
+      canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+    };
+  }, [gl]);
+  
+  return null;
+};
+
 const ThreeComponents: React.FC = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [debug, setDebug] = useState(false);
   const [canvasError, setCanvasError] = useState<Error | null>(null);
+  const [isCanvasReady, setIsCanvasReady] = useState(false);
   const controlsRef = useRef<any>(null);
   const { currentPhase, setOverlay } = useGameStateStore();
+  
+  // Delayed mounting to ensure browser is ready
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsCanvasReady(true);
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -63,6 +100,14 @@ const ThreeComponents: React.FC = () => {
     );
   }
 
+  if (!isCanvasReady) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-game-bg">
+        <div className="text-white">Initializing 3D environment...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full relative">
       <Canvas
@@ -70,13 +115,17 @@ const ThreeComponents: React.FC = () => {
         gl={{ 
           antialias: true, 
           alpha: false,
-          powerPreference: 'high-performance',
-          failIfMajorPerformanceCaveat: false
+          powerPreference: 'default', // Less demanding power preference
+          failIfMajorPerformanceCaveat: false,
+          depth: true,
+          stencil: false
         }}
+        dpr={[0.8, 1.2]} // Reduced resolution for better performance
         onClick={handleLock}
         frameloop="always"
         onError={handleCanvasError}
       >
+        <WebGLErrorHandler />
         <color attach="background" args={['#87CEEB']} />
         <fog attach="fog" args={['#87CEEB', 30, 100]} />
         

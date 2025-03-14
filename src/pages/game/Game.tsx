@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useGameContext } from '@/contexts/GameContext';
 import useGameStateStore, { useInitialPlayers } from '@/stores/gameStateStore';
@@ -25,30 +24,51 @@ const Game = () => {
     setPhase
   } = useGameStateStore();
   
-  // Local UI state
   const [showControls, setShowControls] = useState(true);
   const [is3DActive, setIs3DActive] = useState(true);
   const [isGameReady, setIsGameReady] = useState(false);
   const gameStartAttempted = useRef(false);
 
   useEffect(() => {
-    // Only attempt to start the game once
     if (!isGameActive && !gameStartAttempted.current) {
       console.log("Starting game");
       gameStartAttempted.current = true;
-      // Use a slight delay to avoid state update conflicts
       setTimeout(() => {
         startGame();
       }, 100);
     }
 
-    // Mark the game as ready once we're initialized
     if (isGameActive && (currentPhase === 'idle' || currentPhase)) {
       console.log("Game initialized");
       setIsGameReady(true);
     }
   }, [isGameActive, currentPhase, startGame]);
-  
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'e' || e.key === 'E') {
+        document.body.setAttribute('data-key-e', 'true');
+      }
+    };
+    
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'e' || e.key === 'E') {
+        document.body.setAttribute('data-key-e', 'false');
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
+    document.body.setAttribute('data-key-e', 'false');
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      document.body.removeAttribute('data-key-e');
+    };
+  }, []);
+
   const handlePhaseChange = (phase: string) => {
     setPhase(phase as any);
     setOverlay(null);
@@ -75,7 +95,6 @@ const Game = () => {
     });
   };
 
-  // If game isn't ready yet, show loading screen
   if (!isGameReady) {
     return (
       <div className="game-container h-screen bg-slate-900 flex items-center justify-center">
@@ -91,7 +110,6 @@ const Game = () => {
 
   return (
     <div className="game-container relative h-screen bg-slate-900">
-      {/* Game header */}
       <div className="absolute top-0 left-0 w-full z-20 glass-panel backdrop-blur-md bg-opacity-90 border-b border-game-glass-border">
         <GameHeader 
           weekCount={weekCount}
@@ -103,7 +121,6 @@ const Game = () => {
         />
       </div>
 
-      {/* Main game content */}
       <div className="pt-16 h-full">
         <GamePhaseManager
           onStartHohCompetition={handleStartHohCompetition}
@@ -112,7 +129,6 @@ const Game = () => {
         <GameWorld />
       </div>
       
-      {/* Game status sidebar */}
       <GameSidebar 
         hoh={hoh}
         nominees={nominees}
@@ -122,10 +138,8 @@ const Game = () => {
         onToggleControls={() => setShowControls(!showControls)}
       />
 
-      {/* Game overlays */}
       <GameOverlays overlay={overlay} />
       
-      {/* Debug info */}
       <div className="absolute bottom-2 left-2 text-white text-xs opacity-50">
         Players: {players.length} | Phase: {currentPhase}
       </div>
